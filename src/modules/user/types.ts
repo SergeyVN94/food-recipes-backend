@@ -10,9 +10,8 @@ export type UserRegistry = {
 };
 
 export type User = {
-  id: number;
+  id: string;
   userName: string;
-  passHash: string;
   email: string;
   role: UserRole;
   createdAt: string;

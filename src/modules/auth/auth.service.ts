@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 import { User, UserRole, UserService } from 'src/modules/user';
 
-import { UserRegDto } from './userReg.dto';
+import { UserRegDto } from './dto/userReg.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,17 +23,18 @@ export class AuthService {
   }
 
   async validate(email: string, password: string): Promise<User | null> {
-    const foundUser = await this.userService.findUserByEmail(email);
-    if (!foundUser) return null;
-    if (!(await bcrypt.compare(password, foundUser.passHash))) return null;
-    return _.omit(foundUser, 'passHash') as User;
+    const response = await this.userService.getUserWithPassHash(email);
+    if (!response) return null;
+    const { hash, user } = response;
+    if (!(await bcrypt.compare(password, hash))) return null;
+    return user;
   }
 
   async login(user: User) {
     return {
       accessToken: this.jwt.sign({
         email: user.email,
-        id: user.id,
+        sub: user.id,
         role: user.role,
       }),
     };

@@ -2,9 +2,9 @@ import {
   Body,
   ConflictException,
   Controller,
-  NotFoundException,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 
@@ -12,21 +12,14 @@ import { UserService } from 'src/modules/user';
 
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
-import { UserRegDto } from './userReg.dto';
-import { UserAuthDto } from './userAuth.dto';
+import { UserRegDto } from './dto/userReg.dto';
 
-@Controller('/auth')
+@Controller('/api/v1/auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
   ) {}
-
-  @UseGuards(LocalAuthGuard)
-  @Post('test')
-  async login() {
-    return await this.userService.userCount();
-  }
 
   @Post('signup')
   async signup(@Body() userRegDto: UserRegDto) {
@@ -34,9 +27,9 @@ export class AuthController {
 
     const { email, login, password } = userRegDto ?? {};
 
-    if (!email) throw new NotFoundException('email is required');
-    if (!login) throw new NotFoundException('login is required');
-    if (!password) throw new NotFoundException('password is required');
+    if (!email) throw new UnauthorizedException('email is required');
+    if (!login) throw new UnauthorizedException('login is required');
+    if (!password) throw new UnauthorizedException('password is required');
     if (await this.userService.isUserExist(email))
       throw new ConflictException('User exist!');
 
@@ -44,15 +37,9 @@ export class AuthController {
     return await this.authService.login(newUser);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async validate(@Body() userAuthDto: UserAuthDto) {
-    const user = await this.authService.validate(
-      userAuthDto.email,
-      userAuthDto.password,
-    );
-    if (!user)
-      throw new NotFoundException('User not exist or password incorrect');
-
-    return await this.authService.login(user);
+  async login(@Request() req) {
+    return await this.authService.login(req.user);
   }
 }

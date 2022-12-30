@@ -22,9 +22,27 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
+  async getUserWithPassHash(email: string): Promise<{ user: User, hash: string } | null> {
+    const foundUser = await this.userRepository.findOne({ where: { email } });
+    if (!foundUser) return null;
+    return ({ user: _.omit(foundUser, 'passHash'), hash: foundUser.passHash });
+  }
+
+  async findUserById(id: string): Promise<User | null> {
+    const foundUser = await this.userRepository.findOne({ where: { id } });
+    return foundUser ? _.omit((foundUser as User), 'passHash') : null;
+  }
+
   async findUserByEmail(email: string): Promise<User | null> {
     const foundUser = await this.userRepository.findOne({ where: { email } });
-    return foundUser ? (foundUser as User) : null;
+    return foundUser ? _.omit((foundUser as User), 'passHash'): null;
+  }
+
+  async findUserByName(name: string): Promise<User | null> {
+    const foundUser = await this.userRepository.findOne({
+      where: { userName: name },
+    });
+    return foundUser ? _.omit((foundUser as User), 'passHash'): null;
   }
 
   async isUserExist(email: string): Promise<boolean> {

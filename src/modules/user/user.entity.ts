@@ -11,7 +11,7 @@ import { UserRole } from './types';
 @Entity()
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id!: string;
 
   @Column({ unique: true })
   userName: string;

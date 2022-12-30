@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { RecipeDto } from './recipe.dto';
 
 import { RecipeService } from './recipe.service';
 
@@ -8,13 +9,21 @@ export class RecipeController {
 
   @Get()
   getRecipes(@Query() filter: { query?: string; slugs?: string[] }) {
-    console.log(filter);
     return this.recipeService.getRecipes(filter);
   }
 
-  @Get(':slug')
-  getRecipe(@Param('slug') slug: string) {
-    console.log(slug);
-    return this.recipeService.getRecipes({ slugs: [slug] });
+  @Post()
+  saveRecipe(@Body() body: RecipeDto) {
+    return JSON.stringify(body);
+  }
+
+  @Put(':id')
+  updateRecipe(@Body() body: RecipeDto, @Param('id') id: string) {
+    return JSON.stringify(body);
+  }
+
+  @Delete(':id')
+  deleteRecipe(@Param('id') id: string) {
+    return id;
   }
 }
