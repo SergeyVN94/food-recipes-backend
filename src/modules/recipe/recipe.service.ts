@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import * as _ from 'lodash';
 
+import { RecipeEntity } from './recipe.entity';
+
 import { Recipe } from './types';
-import * as recipes from './recipes.json';
 
 interface FetchFilter {
   query?: string;
@@ -11,26 +14,37 @@ interface FetchFilter {
 
 @Injectable()
 export class RecipeService {
-  getRecipes(filter?: FetchFilter): { results: Recipe[] } {
-    if (_.isEmpty(filter)) return { results: recipes as Recipe[] };
+  constructor(
+    @InjectRepository(RecipeEntity)
+    private recipeRepository: Repository<RecipeEntity>,
+  ) {}
+
+  async getRecipes(filter?: FetchFilter): Promise<Recipe[]> {
+    if (_.isEmpty(filter)) {
+      return await this.recipeRepository.find({
+        cache: { milliseconds: 1000 * 60 * 3, id: null }
+      }) as Recipe[];
+    }
 
     const { query = '', slugs } = filter;
-    const normalizedQuery = (
-      _.isString(query) ? query.trim() : ''
-    ).toLowerCase();
+    const filteredSlugs = slugs.map(s => s.trim().toLowerCase()).filter(Boolean);
+    const findOptions: FindManyOptions<RecipeEntity> = {};
 
-    const recipesRes = recipes.filter((r) => {
-      if (normalizedQuery)
-        return (
-          r.title.toLowerCase().includes(normalizedQuery) ||
-          r.description.toLowerCase().includes(normalizedQuery)
-        );
+    if (query) {
+      findOptions.where['title'] = Like(`%${query.trim().toLowerCase()}%`);
+    }
+    if (filteredSlugs.length > 0) {
+      findOptions.where['slug'] = In(filteredSlugs);
+    }
 
-      if (slugs && slugs.length > 0) return slugs.includes(r.slug);
+    return await this.recipeRepository.find(findOptions) as Recipe[];
+  }
 
-      return false;
+  async getRecipeBySlug(slug: Recipe['slug']): Promise<Recipe | null> {
+    const recipe = await this.recipeRepository.findOne({
+      where: { slug: slug.trim().toLowerCase() }
     });
 
-    return { results: recipesRes as Recipe[] };
+    return recipe as Recipe ?? null;
   }
 }

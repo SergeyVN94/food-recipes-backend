@@ -24,8 +24,14 @@ export class RecipeEntity {
   @Column()
   description: string;
 
-  @Column('text', { array: true })
-  image: string[];
+  @Column('simple-array')
+  ingredients: number[]; 
+
+  @Column('text')
+  images: string[];
+
+  @Column('simple-array')
+  steps: string[];
 
   @OneToOne(() => UserEntity, (user) => user.id)
   @JoinColumn()

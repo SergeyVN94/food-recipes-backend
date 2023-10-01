@@ -3,5 +3,16 @@ export type RecipeIngredient = {
   slug: string;
   name: string;
   description: string;
-  images?: string[];
+  image?: string;
+};
+
+export type AmountType = {
+  id: number;
+  name: string;
+};
+
+export type QueryFilter = {
+  query?: string;
+  limit?: number;
+  page?: number;
 };
