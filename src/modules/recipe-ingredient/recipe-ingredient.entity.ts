@@ -1,9 +1,7 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -20,7 +18,7 @@ export class RecipeIngredientEntity {
   @Column({ default: '', length: 300 })
   description: string;
 
-  @Column({ default: '',  })
+  @Column({ default: '' })
   image: string;
 
   @Column('simple-array')

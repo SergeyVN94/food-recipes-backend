@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RecipeModule } from 'src/modules/recipe';
-// import { RecipeIngredientModule } from 'src/modules/recipe-ingredient';
+import { RecipeIngredientModule } from 'src/modules/recipe-ingredient';
 // import { FavoritesModule } from 'src/modules/favorites';
 import { AuthModule } from 'src/modules/auth';
 
@@ -13,7 +13,7 @@ import { AppService } from './app.service';
   imports: [
     AuthModule,
     RecipeModule,
-    // RecipeIngredientModule,
+    RecipeIngredientModule,
     // FavoritesModule,
     TypeOrmModule.forRoot({
       type: 'sqlite',

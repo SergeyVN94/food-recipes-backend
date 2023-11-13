@@ -4,13 +4,7 @@ import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import * as _ from 'lodash';
 
 import { RecipeEntity } from './recipe.entity';
-
-import { Recipe } from './types';
-
-interface FetchFilter {
-  query?: string;
-  slugs?: string[];
-}
+import { Recipe, RecipeFilter } from './types';
 
 @Injectable()
 export class RecipeService {
@@ -19,32 +13,33 @@ export class RecipeService {
     private recipeRepository: Repository<RecipeEntity>,
   ) {}
 
-  async getRecipes(filter?: FetchFilter): Promise<Recipe[]> {
+  async getRecipes(filter: RecipeFilter = {}): Promise<RecipeEntity[]> {
     if (_.isEmpty(filter)) {
-      return await this.recipeRepository.find({
-        cache: { milliseconds: 1000 * 60 * 3, id: null }
-      }) as Recipe[];
+      return await this.recipeRepository.find();
     }
 
-    const { query = '', slugs } = filter;
-    const filteredSlugs = slugs.map(s => s.trim().toLowerCase()).filter(Boolean);
-    const findOptions: FindManyOptions<RecipeEntity> = {};
+    const findOptions: FindManyOptions<RecipeEntity> = { where: {} };
 
-    if (query) {
-      findOptions.where['title'] = Like(`%${query.trim().toLowerCase()}%`);
+    if ('query' in filter) {
+      findOptions.where['title'] = Like(
+        `%${String(filter.query).trim().toLowerCase()}%`,
+      );
     }
-    if (filteredSlugs.length > 0) {
+
+    if ('slugs' in filter) {
+      const filteredSlugs = _.castArray(filter.slugs)
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+
       findOptions.where['slug'] = In(filteredSlugs);
     }
 
-    return await this.recipeRepository.find(findOptions) as Recipe[];
+    return await this.recipeRepository.find(findOptions);
   }
 
-  async getRecipeBySlug(slug: Recipe['slug']): Promise<Recipe | null> {
-    const recipe = await this.recipeRepository.findOne({
-      where: { slug: slug.trim().toLowerCase() }
+  async getRecipeBySlug(slug: Recipe['slug']): Promise<RecipeEntity> {
+    return await this.recipeRepository.findOne({
+      where: { slug: slug.trim().toLowerCase() },
     });
-
-    return recipe as Recipe ?? null;
   }
 }

@@ -10,7 +10,7 @@ export class RecipeIngredientController {
   @Get(':id')
   async get(@Param() id: string): Promise<{ results: RecipeIngredient | null }> {
     return {
-      results: await this.ingredientService.getIngredientsById(parseInt(String(id), 10)),
+      results: await this.ingredientService.getIngredientById(parseInt(String(id), 10)),
     };
   }
 
