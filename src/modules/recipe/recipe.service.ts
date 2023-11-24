@@ -46,8 +46,6 @@ export class RecipeService {
   }
 
   async saveRecipe(recipeDto: RecipeDto): Promise<RecipeEntity> {
-    console.log(recipeDto);
-    
     const slug = createSlug(recipeDto.title, {
       replacement: '_',
       trim: true,
