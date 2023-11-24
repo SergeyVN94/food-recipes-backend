@@ -34,7 +34,7 @@ export class RecipeEntity {
   ingredients: number[]; 
 
   @ApiProperty({ type: String, isArray: true })
-  @Column('text')
+  @Column('simple-array')
   images: string[];
 
   @ApiProperty({ type: String, isArray: true })

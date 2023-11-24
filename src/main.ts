@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './modules/app';
+import { TypeormExceptionsFilter, HttpExceptionFilter } from './filters';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,6 +12,8 @@ async function bootstrap() {
     },
     bodyParser: true,
   });
+  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new TypeormExceptionsFilter());
 
   const config = new DocumentBuilder()
     .setTitle('Рецепты')

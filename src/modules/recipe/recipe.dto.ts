@@ -10,8 +10,8 @@ export class RecipeDto {
   @ApiProperty()
   public tags: string[];
 
-  // @ApiProperty()
-  // public images: string[];
+  @ApiProperty()
+  public images: string[];
 
   @ApiProperty()
   public steps: string[];

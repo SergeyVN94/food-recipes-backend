@@ -8,11 +8,13 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
-import { RecipeDto } from './recipe.dto';
-
 import { ApiCreatedResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
+import { RecipeDto } from './recipe.dto';
 import { RecipeService } from './recipe.service';
 import { RecipeFilter } from './types';
 import { RecipeEntity } from './recipe.entity';
@@ -43,10 +45,17 @@ export class RecipeController {
   }
 
   @Post()
-  saveRecipe(@Body() body: RecipeDto) {
-    console.log('saveRecipe', body);
-    
-    return JSON.stringify(body);
+  @UseInterceptors(FilesInterceptor('images', 3))
+  async saveRecipe(
+    @Body() body: RecipeDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const newRecipe = await this.recipeService.saveRecipe({
+      ...body,
+      images: (files ?? []).map((i) => i.filename),
+    });
+
+    return newRecipe;
   }
 
   @Put(':slug')
