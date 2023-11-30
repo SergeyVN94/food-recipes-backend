@@ -18,8 +18,8 @@ import { diskStorage } from 'multer';
     TypeOrmModule.forFeature([RecipeEntity]),
     RecipeIngredientModule,
     MulterModule.register({
-      dest: './public/recipes',
       storage: diskStorage({
+        destination: './public/recipes',
         filename: (_, file, next) => {
           const ext = path.extname(file.originalname);
           let err = null;
