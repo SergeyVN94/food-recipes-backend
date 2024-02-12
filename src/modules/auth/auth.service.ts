@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import * as _ from 'lodash';
 
 import { User, UserRole, UserService } from 'src/modules/user';
 

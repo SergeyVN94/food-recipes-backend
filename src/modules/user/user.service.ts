@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as _ from 'lodash';
+import omit from 'lodash/omit';
 
 import { User, UserRole } from './types';
 import { UserEntity } from './user.entity';
@@ -25,24 +25,24 @@ export class UserService {
   async getUserWithPassHash(email: string): Promise<{ user: User, hash: string } | null> {
     const foundUser = await this.userRepository.findOne({ where: { email } });
     if (!foundUser) return null;
-    return ({ user: _.omit(foundUser, 'passHash'), hash: foundUser.passHash });
+    return ({ user: omit(foundUser, 'passHash'), hash: foundUser.passHash });
   }
 
   async findUserById(id: string): Promise<User | null> {
     const foundUser = await this.userRepository.findOne({ where: { id } });
-    return foundUser ? _.omit((foundUser as User), 'passHash') : null;
+    return foundUser ? omit((foundUser as User), 'passHash') : null;
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
     const foundUser = await this.userRepository.findOne({ where: { email } });
-    return foundUser ? _.omit((foundUser as User), 'passHash'): null;
+    return foundUser ? omit((foundUser as User), 'passHash'): null;
   }
 
   async findUserByName(name: string): Promise<User | null> {
     const foundUser = await this.userRepository.findOne({
       where: { userName: name },
     });
-    return foundUser ? _.omit((foundUser as User), 'passHash'): null;
+    return foundUser ? omit((foundUser as User), 'passHash'): null;
   }
 
   async isUserExist(email: string): Promise<boolean> {

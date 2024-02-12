@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Like, Repository } from 'typeorm';
-import * as _ from 'lodash';
 
 import { RecipeIngredientEntity } from './recipe-ingredient.entity';
 import { AmountType, QueryFilter, RecipeIngredient } from './types';

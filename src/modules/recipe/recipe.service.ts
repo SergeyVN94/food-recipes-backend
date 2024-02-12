@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import * as createSlug from 'slug';
-import * as _ from 'lodash';
+import { castArray } from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { RecipeEntity } from './recipe.entity';
 import { Recipe, RecipeFilter } from './types';
@@ -16,20 +17,20 @@ export class RecipeService {
   ) {}
 
   async getRecipes(filter: RecipeFilter = {}): Promise<RecipeEntity[]> {
-    if (_.isEmpty(filter)) {
+    if (isEmpty(filter)) {
       return await this.recipeRepository.find();
     }
 
     const findOptions: FindManyOptions<RecipeEntity> = { where: {} };
 
-    if ('query' in filter) {
+    if ('q' in filter) {
       findOptions.where['title'] = Like(
-        `%${String(filter.query).trim().toLowerCase()}%`,
+        `%${String(filter.q).trim().toLowerCase()}%`,
       );
     }
 
     if ('slugs' in filter) {
-      const filteredSlugs = _.castArray(filter.slugs)
+      const filteredSlugs = castArray(filter.slugs)
         .map((s) => s.trim().toLowerCase())
         .filter(Boolean);
 

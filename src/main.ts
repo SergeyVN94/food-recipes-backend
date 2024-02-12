@@ -4,6 +4,8 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './modules/app';
 import { TypeormExceptionsFilter, HttpExceptionFilter } from './filters';
 
+declare const module: any;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: {
@@ -25,5 +27,10 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   await app.listen(8000);
+
+  if (module.hot) {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
 bootstrap();

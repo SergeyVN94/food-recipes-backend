@@ -27,6 +27,7 @@ import { AppService } from './app.service';
       serveStaticOptions: {
         index: false,
       },
+      serveRoot: '/public',
       rootPath: join(__dirname, '../../..', 'public'),
     }),
   ],

@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
   NotFoundException,
   Param,
+  ParseFilePipe,
   Post,
   Put,
   Query,
@@ -23,7 +25,7 @@ import { RecipeEntity } from './recipe.entity';
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
 
-  @ApiQuery({ name: 'query', type: String, required: false })
+  @ApiQuery({ name: 'q', type: String, required: false })
   @ApiQuery({ name: 'slugs', type: String, isArray: true, required: false })
   @ApiCreatedResponse({ type: RecipeEntity, isArray: true })
   @Get()
@@ -45,10 +47,21 @@ export class RecipeController {
   }
 
   @Post()
-  @UseInterceptors(FilesInterceptor('images', 3))
+  @UseInterceptors(
+    FilesInterceptor('images', 3, {
+      limits: {
+        fileSize: 5e6, // 5MB
+      },
+    }),
+  )
   async saveRecipe(
     @Body() body: RecipeDto,
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [new FileTypeValidator({ fileType: /\.(png|jpg|jpeg)$/ })],
+      }),
+    )
+    files: Express.Multer.File[],
   ) {
     const newRecipe = await this.recipeService.saveRecipe({
       ...body,

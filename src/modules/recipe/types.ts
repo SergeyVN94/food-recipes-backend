@@ -3,7 +3,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 
 export type RecipeFilter = {
-  query?: string;
+  q?: string;
   slugs?: string[];
 };
 
