@@ -15,11 +15,13 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import * as crypto from 'crypto';
 
 import { RecipeDto } from './recipe.dto';
 import { RecipeService } from './recipe.service';
 import { RecipeFilter } from './types';
 import { RecipeEntity } from './recipe.entity';
+import { RecipeResponse } from './recipe.types';
 
 @Controller('/api/v1/recipes')
 export class RecipeController {
@@ -36,7 +38,7 @@ export class RecipeController {
   @ApiParam({ name: 'slug', type: String, required: true })
   @ApiCreatedResponse({ type: RecipeEntity })
   @Get(':slug')
-  async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeEntity> {
+  async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeResponse> {
     const recipe = await this.recipeService.getRecipeBySlug(slug);
 
     if (!recipe) {
@@ -58,15 +60,15 @@ export class RecipeController {
     @Body() body: RecipeDto,
     @UploadedFiles(
       new ParseFilePipe({
-        validators: [new FileTypeValidator({ fileType: /\.(png|jpg|jpeg)$/ })],
+        validators: [
+          new FileTypeValidator({ fileType: 'image/*' }),
+        ],
+        fileIsRequired: false,
       }),
     )
-    files: Express.Multer.File[],
+    files: Express.Multer.File[] = [],
   ) {
-    const newRecipe = await this.recipeService.saveRecipe({
-      ...body,
-      images: (files ?? []).map((i) => i.filename),
-    });
+    const newRecipe = await this.recipeService.saveRecipe(body, files);
 
     return newRecipe;
   }

@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,12 +11,13 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 import { UserEntity } from '../user';
+import { RecipeStepEntity } from './recipe-step.entity';
 
 @Entity()
 export class RecipeEntity {
   @ApiProperty({ name: 'id', required: true })
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id!: string;
 
   @ApiProperty()
   @Column()
@@ -38,12 +40,14 @@ export class RecipeEntity {
   images: string[];
 
   @ApiProperty({ type: String, isArray: true })
-  @Column('simple-array')
-  steps: string[];
+  @OneToMany(() => RecipeStepEntity, (step) => step.recipe)
+  steps: RecipeStepEntity[];
 
   @ApiProperty()
   @OneToOne(() => UserEntity, (user) => user.id)
-  @JoinColumn()
+  @JoinColumn({
+    name: 'userId'
+  })
   userId: UserEntity['id'];
 
   @ApiProperty()

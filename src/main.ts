@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './modules/app';
 import { TypeormExceptionsFilter, HttpExceptionFilter } from './filters';
@@ -16,6 +17,9 @@ async function bootstrap() {
   });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new TypeormExceptionsFilter());
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+  }));
 
   const config = new DocumentBuilder()
     .setTitle('Рецепты')
