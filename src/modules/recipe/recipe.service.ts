@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, Like, Repository } from 'typeorm';
-import * as createSlug from 'slug';
+import createSlug from 'slug';
 import { castArray, isEmpty, omit } from 'lodash';
 import * as path from 'path';
 import * as fs from 'fs';

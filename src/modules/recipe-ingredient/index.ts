@@ -1,2 +1,2 @@
 export * from './recipe-ingredient.module';
-export * from './types';
+export * from './recipe-ingredient.types';

@@ -1,32 +1,26 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 
 import { RecipeIngredientService } from './recipe-ingredient.service';
-import { AmountType, QueryFilter, RecipeIngredient } from './types';
+import { AmountType, QueryFilter, RecipeIngredient } from './recipe-ingredient.types';
 
 @Controller('/api/v1/recipe-ingredient')
 export class RecipeIngredientController {
   constructor(private readonly ingredientService: RecipeIngredientService) {}
 
-  @Get(':id')
-  async get(@Param() id: string): Promise<{ results: RecipeIngredient | null }> {
-    return {
-      results: await this.ingredientService.getIngredientById(parseInt(String(id), 10)),
-    };
+  @Get()
+  async getRecipeIngredients(
+    @Query() filter: QueryFilter = {}
+  ): Promise<RecipeIngredient[]> {
+    return await this.ingredientService.getIngredients(filter);
   }
 
-  @Get()
-  async getByFilter(
-    @Query() filter: QueryFilter = {}
-  ): Promise<{ results: RecipeIngredient[] }> {
-    return {
-      results: await this.ingredientService.getIngredients(filter),
-    };
-  }
+  @Get(':id')
+  async getRecipeIngredientById(@Param() id: string): Promise<RecipeIngredient> {
+    return await this.ingredientService.getIngredientById(id);
+  }  
 
   @Get('amount-types')
-  async getAmountTypes(): Promise<{ results: AmountType[] }> {
-    return {
-      results: this.ingredientService.getAmountTypes(),
-    };
+  async getAmountTypes(): Promise<AmountType[]> {
+    return await this.ingredientService.getAmountTypes();
   }
 }

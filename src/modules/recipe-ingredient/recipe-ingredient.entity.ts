@@ -1,13 +1,18 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
+import { AmountTypeEntity } from './amount-types.entity';
 
 @Entity()
 export class RecipeIngredientEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id!: string;
 
   @Column()
   name: string;
@@ -21,6 +26,13 @@ export class RecipeIngredientEntity {
   @Column({ default: '' })
   image: string;
 
-  @Column('simple-array')
-  amountTypes: number[];
+  @ManyToMany(() => AmountTypeEntity)
+  @JoinTable()
+  amountTypes: AmountTypeEntity[];
+
+  @CreateDateColumn()
+  createdAt: string;
+
+  @UpdateDateColumn()
+  updateAt: string;
 }
