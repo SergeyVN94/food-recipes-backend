@@ -52,6 +52,7 @@ export class RecipeService {
       where: { slug: slug.trim().toLowerCase() },
       relations: {
         steps: true,
+        ingredients: true,
       }
     });
 

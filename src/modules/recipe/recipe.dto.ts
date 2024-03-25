@@ -25,4 +25,10 @@ export class RecipeDto {
   @ArrayMinSize(1)
   @IsString({ each: true })
   public steps: string[];
+
+  @ApiProperty()
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  public ingredientsUnits: string[];
 }

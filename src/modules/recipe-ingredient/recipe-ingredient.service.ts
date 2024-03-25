@@ -16,7 +16,11 @@ export class RecipeIngredientService {
   ) {}
 
   async getIngredients(filter: QueryFilter = {}) {
-    const findOptions: FindManyOptions<RecipeIngredientEntity> = {};
+    const findOptions: FindManyOptions<RecipeIngredientEntity> = {
+      relations: {
+        amountTypes: true,
+      },
+    };
 
     const query = (filter.query ?? '').trim().toLowerCase();
     if (query.length > 0) {
@@ -25,6 +29,7 @@ export class RecipeIngredientService {
 
     return await this.recipeRepository.find(
       findOptions,
+      
     );
   }
 
@@ -37,6 +42,6 @@ export class RecipeIngredientService {
   }
 
   async getAmountTypes(): Promise<AmountType[]> {
-    return (await this.amountTypeRepository.find() ?? []);
+    return await this.amountTypeRepository.find();
   }
 }
