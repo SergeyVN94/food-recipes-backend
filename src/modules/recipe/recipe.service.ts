@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, Like, Repository } from 'typeorm';
-import createSlug from 'slug';
+import createSlug from 'slugify';
 import { castArray, isEmpty, omit } from 'lodash';
 import * as path from 'path';
 import * as fs from 'fs';
 
-import { RecipeEntity } from './recipe.entity';
+import { RecipeEntity } from './entity/recipe.entity';
 import { Recipe, RecipeFilter } from './types';
-import { RecipeDto } from './recipe.dto';
-import { RecipeStepEntity } from './recipe-step.entity';
+import { RecipeDto } from './dto/recipe.dto';
+import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeResponse } from './recipe.types';
+import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
+import { AmountTypeEntity } from '../recipe-ingredient/entity/amount-types.entity';
+import { RecipeIngredientEntity } from '../recipe-ingredient/entity/recipe-ingredient.entity';
 
 @Injectable()
 export class RecipeService {
@@ -19,6 +22,8 @@ export class RecipeService {
     private recipeRepository: Repository<RecipeEntity>,
     @InjectRepository(RecipeStepEntity)
     private recipeStepRepository: Repository<RecipeStepEntity>,
+    @InjectRepository(RecipeIngredientUnitEntity)
+    private recipeIngredientUnitRepository: Repository<RecipeIngredientUnitEntity>,
   ) {}
 
   async getRecipes(filter: RecipeFilter = {}): Promise<RecipeEntity[]> {
@@ -36,7 +41,7 @@ export class RecipeService {
 
     if ('slugs' in filter) {
       const filteredSlugs = castArray(filter.slugs)
-        .map((s) => s.trim().toLowerCase())
+        .map((s) => s.trim())
         .filter(Boolean);
 
       findOptions.where['slug'] = In(filteredSlugs);
@@ -49,18 +54,23 @@ export class RecipeService {
     slug: Recipe['slug'],
   ): Promise<Omit<RecipeEntity, 'steps' | 'id'> & { steps: string[] }> {
     const recipe = await this.recipeRepository.findOne({
-      where: { slug: slug.trim().toLowerCase() },
+      where: { slug: slug.trim() },
       relations: {
         steps: true,
-        ingredients: true,
-      }
+        ingredients: {
+          amountType: true,
+          ingredient: true,
+        },
+      },
     });
 
     if (recipe) {
-      return ({
+      return {
         ...omit(recipe, 'id'),
-        steps: recipe.steps.sort((a, b) => a.order < b.order ? -1 : 1).map(i => i.content)
-      });
+        steps: recipe.steps
+          .sort((a, b) => (a.order < b.order ? -1 : 1))
+          .map((i) => i.content),
+      };
     }
 
     return null;
@@ -96,11 +106,54 @@ export class RecipeService {
 
     await Promise.all(saveFilePromises);
 
+    const ingredientObjects = dto.ingredients.map((ingredientJSON, index) => {
+      let ingredientObj;
+
+      try {
+        ingredientObj = JSON.parse(ingredientJSON);
+      } catch (error) {
+        throw new HttpException(
+          `Invalid insgredient value at index ${index}`,
+          HttpStatus.EXPECTATION_FAILED,
+        );
+      }
+
+      const { ingredientId, amountTypeId, count } = ingredientObj;
+      const normalizedCount = parseInt(count, 10);
+      
+      const isValidIngredientId =
+        typeof ingredientId === 'string' && ingredientId.length > 0;
+      const isValidAmountTypeId =
+        typeof amountTypeId === 'string' && amountTypeId.length > 0;
+      const isValidCount = typeof normalizedCount === 'number' && normalizedCount > 0;
+
+      if (!isValidIngredientId || !isValidAmountTypeId || !isValidCount) {
+        throw new HttpException(
+          `Invalid insgredient value at index ${index}`,
+          HttpStatus.EXPECTATION_FAILED,
+        );
+      }
+
+      const amountType = new AmountTypeEntity();
+      amountType.id = amountTypeId;
+
+      const ingredient = new RecipeIngredientEntity();
+      ingredient.id = ingredientId;
+
+      return {
+        amountType,
+        ingredient,
+        count: normalizedCount,
+      };
+    });
+
+    const ingredients = await this.recipeIngredientUnitRepository.save(ingredientObjects);
+    
     const slug = createSlug(dto.title, {
       replacement: '_',
       trim: true,
     });
-
+    
     const steps = await this.recipeStepRepository.save(
       dto.steps.map((step, index) => ({
         order: index,
@@ -112,14 +165,16 @@ export class RecipeService {
       slug,
       steps,
       images,
+      ingredients,
       description: dto.description,
-      ingredients: [],
       title: dto.title,
     });
 
-    return ({
+    return {
       ...omit(recipe, 'id'),
-      steps: recipe.steps.sort((a, b) => a.order < b.order ? -1 : 1).map(i => i.content)
-    });
+      steps: recipe.steps
+        .sort((a, b) => (a.order < b.order ? -1 : 1))
+        .map((i) => i.content),
+    };
   }
 }

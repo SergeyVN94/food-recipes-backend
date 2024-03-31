@@ -11,9 +11,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import { UserEntity } from '../user';
+import { UserEntity } from '../../user';
 import { RecipeStepEntity } from './recipe-step.entity';
-import { RecipeIngredientEntity } from '../recipe-ingredient/recipe-ingredient.entity';
+import { RecipeIngredientUnitEntity } from './recipe-ingredient-unit.entity';
 
 @Entity()
 export class RecipeEntity {
@@ -29,14 +29,19 @@ export class RecipeEntity {
   @Column()
   description: string;
 
-  @ManyToMany(() => RecipeIngredientEntity)
-  @JoinTable()
-  ingredients: RecipeIngredientEntity[];
-
   @Column('simple-array')
   images: string[];
 
-  @OneToMany(() => RecipeStepEntity, (step) => step.recipe)
+  @OneToMany(() => RecipeIngredientUnitEntity, (unit) => unit.recipe, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  ingredients: RecipeIngredientUnitEntity[];
+
+  @OneToMany(() => RecipeStepEntity, (step) => step.recipe, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   steps: RecipeStepEntity[];
 
   @OneToOne(() => UserEntity, (user) => user.id)

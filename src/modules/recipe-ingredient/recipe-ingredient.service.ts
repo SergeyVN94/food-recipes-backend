@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Like, Repository } from 'typeorm';
 
-import { RecipeIngredientEntity } from './recipe-ingredient.entity';
+import { RecipeIngredientEntity } from './entity/recipe-ingredient.entity';
 import { AmountType, QueryFilter, RecipeIngredient } from './recipe-ingredient.types';
-import { AmountTypeEntity } from './amount-types.entity';
+import { AmountTypeEntity } from './entity/amount-types.entity';
 
 @Injectable()
 export class RecipeIngredientService {
@@ -29,7 +29,6 @@ export class RecipeIngredientService {
 
     return await this.recipeRepository.find(
       findOptions,
-      
     );
   }
 

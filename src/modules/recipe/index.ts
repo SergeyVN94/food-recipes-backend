@@ -1,3 +1,3 @@
 export * from './recipe.module';
-export * from './recipe.entity';
+export * from './entity/recipe.entity';
 export * from './types';

@@ -14,10 +14,14 @@ export class RecipeDto {
 
   @ApiProperty()
   @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
   public tags: string[];
 
   @ApiProperty()
+  @IsArray()
   @IsOptional()
+  @IsString({ each: true })
   public images: string[];
 
   @ApiProperty()
@@ -30,5 +34,5 @@ export class RecipeDto {
   @IsArray()
   @ArrayMinSize(1)
   @IsString({ each: true })
-  public ingredientsUnits: string[];
+  public ingredients: string[];
 }

@@ -15,12 +15,11 @@ import {
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import * as crypto from 'crypto';
 
-import { RecipeDto } from './recipe.dto';
+import { RecipeDto } from './dto/recipe.dto';
 import { RecipeService } from './recipe.service';
 import { RecipeFilter } from './types';
-import { RecipeEntity } from './recipe.entity';
+import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeResponse } from './recipe.types';
 
 @Controller('/api/v1/recipes')

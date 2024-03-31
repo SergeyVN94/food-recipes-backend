@@ -6,8 +6,8 @@ import { LoremIpsum } from 'lorem-ipsum';
 import * as request from 'supertest';
 
 import { RecipeController } from './recipe.controller';
-import { RecipeEntity } from './recipe.entity';
-import { RecipeDto } from './recipe.dto';
+import { RecipeEntity } from './entity/recipe.entity';
+import { RecipeDto } from './dto/recipe.dto';
 import { RecipeService } from './recipe.service';
 
 const lorem = new LoremIpsum({

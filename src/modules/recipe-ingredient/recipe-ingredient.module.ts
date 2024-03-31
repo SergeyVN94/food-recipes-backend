@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { RecipeIngredientService } from './recipe-ingredient.service';
 import { RecipeIngredientController } from './recipe-ingredient.controller';
-import { RecipeIngredientEntity } from './recipe-ingredient.entity';
-import { AmountTypeEntity } from './amount-types.entity';
+import { RecipeIngredientEntity } from './entity/recipe-ingredient.entity';
+import { AmountTypeEntity } from './entity/amount-types.entity';
 
 @Module({
   providers: [RecipeIngredientService],
