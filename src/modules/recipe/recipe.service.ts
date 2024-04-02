@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import createSlug from 'slugify';
@@ -14,6 +14,7 @@ import { RecipeResponse } from './recipe.types';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
 import { AmountTypeEntity } from '../recipe-ingredient/entity/amount-types.entity';
 import { RecipeIngredientEntity } from '../recipe-ingredient/entity/recipe-ingredient.entity';
+import { MinioClientService } from '../minio-client/minio-client.service';
 
 @Injectable()
 export class RecipeService {
@@ -24,6 +25,8 @@ export class RecipeService {
     private recipeStepRepository: Repository<RecipeStepEntity>,
     @InjectRepository(RecipeIngredientUnitEntity)
     private recipeIngredientUnitRepository: Repository<RecipeIngredientUnitEntity>,
+    @Inject(MinioClientService)
+    private minioClientService: MinioClientService,
   ) {}
 
   async getRecipes(filter: RecipeFilter = {}): Promise<RecipeEntity[]> {
@@ -80,31 +83,12 @@ export class RecipeService {
     dto: Omit<RecipeDto, 'images'>,
     files: Express.Multer.File[],
   ): Promise<RecipeResponse> {
-    const saveFilePromises = [];
+    console.log(files);
+    
+    const images = await Promise.all(files.map(file => this.minioClientService.upload(file, 'recipes')));
 
-    const images = files.map((f) => {
-      const ext = path.extname(f.originalname);
-      const newName = crypto.randomUUID() + ext;
-      const rootDir = path.join(__dirname, '../../..');
-      const fullFileName = `${rootDir}/public/recipes/${newName}`;
-
-      saveFilePromises.push(
-        new Promise((resolve, reject) => {
-          fs.writeFile(fullFileName, f.buffer, (err) => {
-            if (err) {
-              reject(err);
-              return;
-            }
-
-            resolve('');
-          });
-        }),
-      );
-
-      return newName;
-    });
-
-    await Promise.all(saveFilePromises);
+    console.log(images);
+    
 
     const ingredientObjects = dto.ingredients.map((ingredientJSON, index) => {
       let ingredientObj;
@@ -164,7 +148,7 @@ export class RecipeService {
     const recipe = await this.recipeRepository.save({
       slug,
       steps,
-      images,
+      images: images.map(i => i.path),
       ingredients,
       description: dto.description,
       title: dto.title,

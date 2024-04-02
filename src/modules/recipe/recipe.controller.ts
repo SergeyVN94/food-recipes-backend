@@ -4,9 +4,11 @@ import {
   Delete,
   FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   NotFoundException,
   Param,
   ParseFilePipe,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Query,
@@ -48,27 +50,19 @@ export class RecipeController {
   }
 
   @Post()
-  @UseInterceptors(
-    FilesInterceptor('images', 3, {
-      limits: {
-        fileSize: 5e6, // 5MB
-      },
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('images', 3))
   async saveRecipe(
     @Body() body: RecipeDto,
     @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new FileTypeValidator({ fileType: 'image/*' }),
-        ],
-        fileIsRequired: false,
-      }),
+      new ParseFilePipeBuilder()
+        .addMaxSizeValidator({ maxSize: 5e6 })
+        .addFileTypeValidator({ fileType: /\/(png|jpg|jpeg)$/ })
+        .build()
     )
     files: Express.Multer.File[] = [],
   ) {
     const newRecipe = await this.recipeService.saveRecipe(body, files);
-
+    
     return newRecipe;
   }
 
