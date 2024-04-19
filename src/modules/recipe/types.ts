@@ -2,11 +2,6 @@
 
 import { ApiProperty } from "@nestjs/swagger";
 
-export type RecipeFilter = {
-  q?: string;
-  slugs?: string[];
-};
-
 export class Recipe {
   @ApiProperty()
   public id: string;

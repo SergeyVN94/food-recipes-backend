@@ -2,12 +2,9 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
-  MaxFileSizeValidator,
   NotFoundException,
   Param,
-  ParseFilePipe,
   ParseFilePipeBuilder,
   Post,
   Put,
@@ -15,14 +12,14 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiCreatedResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiBody, ApiCreatedResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { RecipeDto } from './dto/recipe.dto';
 import { RecipeService } from './recipe.service';
-import { RecipeFilter } from './types';
 import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeResponse } from './recipe.types';
+import { RecipesFilterDto } from './dto/filter.dto';
 
 @Controller('/api/v1/recipes')
 export class RecipeController {
@@ -30,9 +27,10 @@ export class RecipeController {
 
   @ApiQuery({ name: 'q', type: String, required: false })
   @ApiQuery({ name: 'slugs', type: String, isArray: true, required: false })
+  @ApiQuery({ name: 'ingredients', type: String, isArray: true, required: false })
   @ApiCreatedResponse({ type: RecipeEntity, isArray: true })
-  @Get()
-  async getRecipes(@Query() filter: RecipeFilter): Promise<RecipeEntity[]> {
+  @Post()
+  async getRecipes(@Body() filter: RecipesFilterDto): Promise<RecipeEntity[]> {
     return await this.recipeService.getRecipes(filter);
   }
 

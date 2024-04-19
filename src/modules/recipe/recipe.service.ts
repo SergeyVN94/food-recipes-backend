@@ -3,11 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import createSlug from 'slugify';
 import { castArray, isEmpty, omit } from 'lodash';
-import * as path from 'path';
-import * as fs from 'fs';
 
 import { RecipeEntity } from './entity/recipe.entity';
-import { Recipe, RecipeFilter } from './types';
+import { Recipe } from './types';
 import { RecipeDto } from './dto/recipe.dto';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeResponse } from './recipe.types';
@@ -15,6 +13,7 @@ import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.enti
 import { AmountTypeEntity } from '../recipe-ingredient/entity/amount-types.entity';
 import { RecipeIngredientEntity } from '../recipe-ingredient/entity/recipe-ingredient.entity';
 import { MinioClientService } from '../minio-client/minio-client.service';
+import { RecipesFilterDto } from './dto/filter.dto';
 
 @Injectable()
 export class RecipeService {
@@ -29,7 +28,7 @@ export class RecipeService {
     private minioClientService: MinioClientService,
   ) {}
 
-  async getRecipes(filter: RecipeFilter = {}): Promise<RecipeEntity[]> {
+  async getRecipes(filter: RecipesFilterDto = {}): Promise<RecipeEntity[]> {
     if (isEmpty(filter)) {
       return await this.recipeRepository.find();
     }
@@ -48,6 +47,15 @@ export class RecipeService {
         .filter(Boolean);
 
       findOptions.where['slug'] = In(filteredSlugs);
+    }
+
+    // TODO: Поправить поиск по ингредиентам
+    if ('ingredients' in filter) {
+      const filteredIngredients = castArray(filter.ingredients)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      findOptions.where['ingredients'] = In(filteredIngredients);
     }
 
     return await this.recipeRepository.find(findOptions);
