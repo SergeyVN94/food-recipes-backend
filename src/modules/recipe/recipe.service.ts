@@ -48,7 +48,6 @@ export class RecipeService {
       });
     }
 
-    // TODO: Поправить поиск по ингредиентам
     if ('ingredients' in filter && filter.ingredients.length > 0) {
       const list = filter.ingredients.map((i) => `'${i}'`).join(',');
       query = query.andWhere(`ingredient.ingredientId IN (${list})`);
