@@ -35,8 +35,8 @@ export class RecipeService {
 
     let query = this.recipeRepository
       .createQueryBuilder('recipe')
-      .leftJoinAndSelect('recipe.steps', 'steps')
-      .leftJoinAndSelect('recipe.ingredients', 'ingredient');
+      .leftJoin('recipe.steps', 'steps')
+      .leftJoin('recipe.ingredients', 'ingredient');
 
     if ('q' in filter) {
       query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
