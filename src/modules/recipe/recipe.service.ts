@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Raw, Repository } from 'typeorm';
 import createSlug from 'slugify';
 import { castArray, isEmpty, omit } from 'lodash';
 
@@ -33,32 +33,28 @@ export class RecipeService {
       return await this.recipeRepository.find();
     }
 
-    const findOptions: FindManyOptions<RecipeEntity> = { where: {} };
+    let query = this.recipeRepository
+      .createQueryBuilder('recipe')
+      .leftJoinAndSelect('recipe.steps', 'steps')
+      .leftJoinAndSelect('recipe.ingredients', 'ingredient');
 
     if ('q' in filter) {
-      findOptions.where['title'] = Like(
-        `%${String(filter.q).trim().toLowerCase()}%`,
-      );
+      query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
     }
 
-    if ('slugs' in filter) {
-      const filteredSlugs = castArray(filter.slugs)
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      findOptions.where['slug'] = In(filteredSlugs);
+    if ('slugs' in filter && filter.slugs.length > 0) {
+      query = query.andWhere({
+        slug: In(filter.slugs),
+      });
     }
 
     // TODO: Поправить поиск по ингредиентам
-    if ('ingredients' in filter) {
-      const filteredIngredients = castArray(filter.ingredients)
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      findOptions.where['ingredients'] = In(filteredIngredients);
+    if ('ingredients' in filter && filter.ingredients.length > 0) {
+      const list = filter.ingredients.map((i) => `'${i}'`).join(',');
+      query = query.andWhere(`ingredient.ingredientId IN (${list})`);
     }
 
-    return await this.recipeRepository.find(findOptions);
+    return await query.getMany();
   }
 
   async getRecipeBySlug(
@@ -91,12 +87,9 @@ export class RecipeService {
     dto: Omit<RecipeDto, 'images'>,
     files: Express.Multer.File[],
   ): Promise<RecipeResponse> {
-    console.log(files);
-    
-    const images = await Promise.all(files.map(file => this.minioClientService.upload(file, 'recipes')));
-
-    console.log(images);
-    
+    const images = await Promise.all(
+      files.map((file) => this.minioClientService.upload(file, 'recipes')),
+    );
 
     const ingredientObjects = dto.ingredients.map((ingredientJSON, index) => {
       let ingredientObj;
@@ -112,16 +105,17 @@ export class RecipeService {
 
       const { ingredientId, amountTypeId, count } = ingredientObj;
       const normalizedCount = parseInt(count, 10);
-      
+
       const isValidIngredientId =
         typeof ingredientId === 'string' && ingredientId.length > 0;
       const isValidAmountTypeId =
         typeof amountTypeId === 'string' && amountTypeId.length > 0;
-      const isValidCount = typeof normalizedCount === 'number' && normalizedCount > 0;
+      const isValidCount =
+        typeof normalizedCount === 'number' && normalizedCount > 0;
 
       if (!isValidIngredientId || !isValidAmountTypeId || !isValidCount) {
         throw new HttpException(
-          `Invalid insgredient value at index ${index}`,
+          `Invalid ingredient value at index ${index}`,
           HttpStatus.EXPECTATION_FAILED,
         );
       }
@@ -139,13 +133,15 @@ export class RecipeService {
       };
     });
 
-    const ingredients = await this.recipeIngredientUnitRepository.save(ingredientObjects);
-    
+    const ingredients = await this.recipeIngredientUnitRepository.save(
+      ingredientObjects,
+    );
+
     const slug = createSlug(dto.title, {
       replacement: '_',
       trim: true,
     });
-    
+
     const steps = await this.recipeStepRepository.save(
       dto.steps.map((step, index) => ({
         order: index,
@@ -156,7 +152,7 @@ export class RecipeService {
     const recipe = await this.recipeRepository.save({
       slug,
       steps,
-      images: images.map(i => i.path),
+      images: images.map((i) => i.path),
       ingredients,
       description: dto.description,
       title: dto.title,

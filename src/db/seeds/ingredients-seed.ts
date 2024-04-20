@@ -37,7 +37,6 @@ const runSeed = async (dataSource: DataSource) => {
     const amountTypes = i.validAmountTypes
       .map((id) => amountTypesMap[id])
       .filter(Boolean);
-    console.log(amountTypes);
 
     item.amountTypes = Array.from(new Set(amountTypes));
 

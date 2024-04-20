@@ -3,16 +3,20 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   ParseFilePipeBuilder,
   Post,
   Put,
-  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiCreatedResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { RecipeDto } from './dto/recipe.dto';
@@ -27,9 +31,15 @@ export class RecipeController {
 
   @ApiQuery({ name: 'q', type: String, required: false })
   @ApiQuery({ name: 'slugs', type: String, isArray: true, required: false })
-  @ApiQuery({ name: 'ingredients', type: String, isArray: true, required: false })
+  @ApiQuery({
+    name: 'ingredients',
+    type: String,
+    isArray: true,
+    required: false,
+  })
   @ApiCreatedResponse({ type: RecipeEntity, isArray: true })
-  @Post()
+  @Post('/search')
+  @HttpCode(200)
   async getRecipes(@Body() filter: RecipesFilterDto): Promise<RecipeEntity[]> {
     return await this.recipeService.getRecipes(filter);
   }
@@ -55,12 +65,14 @@ export class RecipeController {
       new ParseFilePipeBuilder()
         .addMaxSizeValidator({ maxSize: 5e6 })
         .addFileTypeValidator({ fileType: /\/(png|jpg|jpeg)$/ })
-        .build()
+        .build({
+          fileIsRequired: false,
+        }),
     )
     files: Express.Multer.File[] = [],
   ) {
     const newRecipe = await this.recipeService.saveRecipe(body, files);
-    
+
     return newRecipe;
   }
 

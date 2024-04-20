@@ -20,13 +20,13 @@ export class RecipeEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ type: 'varchar', charset: 'utf8mb4' })
   title: string;
 
   @Column({ unique: true })
   slug: string;
 
-  @Column()
+  @Column({ type: 'varchar', charset: 'utf8mb4' })
   description: string;
 
   @Column('simple-array')
