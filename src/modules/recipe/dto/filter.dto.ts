@@ -1,5 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString,  } from 'class-validator';
+
+class IngredientsDto {
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  includes?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  excludes?: string[];
+}
 
 export class RecipesFilterDto {
   @ApiProperty()
@@ -14,8 +27,8 @@ export class RecipesFilterDto {
   slugs?: string[];
 
   @ApiProperty()
-  @IsArray()
-  @IsString({ each: true })
+  
   @IsOptional()
-  ingredients?: string[];
+  @Type(() => IngredientsDto)
+  ingredients?: IngredientsDto;
 }

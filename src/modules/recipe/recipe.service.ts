@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Like, Raw, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import createSlug from 'slugify';
 import { castArray, isEmpty, omit } from 'lodash';
 
@@ -36,9 +36,9 @@ export class RecipeService {
     let query = this.recipeRepository
       .createQueryBuilder('recipe')
       .leftJoin('recipe.steps', 'steps')
-      .leftJoin('recipe.ingredients', 'ingredient');
+      .leftJoinAndSelect('recipe.ingredients', 'ingredient');
 
-    if ('q' in filter) {
+    if (filter.q?.length > 0) {
       query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
     }
 
@@ -48,9 +48,32 @@ export class RecipeService {
       });
     }
 
-    if ('ingredients' in filter && filter.ingredients.length > 0) {
-      const list = filter.ingredients.map((i) => `'${i}'`).join(',');
-      query = query.andWhere(`ingredient.ingredientId IN (${list})`);
+    const isIngredientsExist =
+      'ingredients' in filter &&
+      ((Array.isArray(filter.ingredients.excludes) &&
+        filter.ingredients.excludes?.length > 0) ||
+        (Array.isArray(filter.ingredients.includes) &&
+          filter.ingredients.includes?.length > 0));
+
+    if (isIngredientsExist) {
+      const excludesList = filter.ingredients.excludes
+        ?.map((i) => `'${i}'`)
+        .join(',');
+      const includesList = filter.ingredients.includes
+        ?.map((i) => `'${i}'`)
+        .join(',');
+
+      if (excludesList) {
+        const subQuery = this.recipeIngredientUnitRepository.createQueryBuilder('ingredient').select('recipeId').where(`ingredient.ingredientId IN (${excludesList})`).getQuery();
+
+        query = query.andWhere(
+          `"recipe"."id" NOT IN (${subQuery})`,
+        );
+      }
+
+      if (includesList) {
+        query = query.andWhere(`ingredient.ingredientId IN (${includesList})`);
+      }
     }
 
     return await query.getMany();
