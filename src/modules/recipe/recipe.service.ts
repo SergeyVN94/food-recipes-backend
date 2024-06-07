@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import createSlug from 'slugify';
-import { castArray, isEmpty, omit } from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { RecipeEntity } from './entity/recipe.entity';
 import { Recipe } from './types';
@@ -35,8 +35,8 @@ export class RecipeService {
 
     let query = this.recipeRepository
       .createQueryBuilder('recipe')
-      .leftJoin('recipe.steps', 'steps')
-      .leftJoinAndSelect('recipe.ingredients', 'ingredient');
+      .innerJoin('recipe.ingredients', 'ingredient')
+      .groupBy('ingredient.recipeId');
 
     if (filter.q?.length > 0) {
       query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
@@ -63,6 +63,10 @@ export class RecipeService {
         ?.map((i) => `'${i}'`)
         .join(',');
 
+      if (includesList) {
+        query = query.andHaving(`ingredient.ingredientId IN (${includesList})`);
+      }
+
       if (excludesList) {
         const subQuery = this.recipeIngredientUnitRepository.createQueryBuilder('ingredient').select('recipeId').where(`ingredient.ingredientId IN (${excludesList})`).getQuery();
 
@@ -76,12 +80,14 @@ export class RecipeService {
       }
     }
 
+    console.log(query.getQuery());
+
     return await query.getMany();
   }
 
   async getRecipeBySlug(
     slug: Recipe['slug'],
-  ): Promise<Omit<RecipeEntity, 'steps' | 'id'> & { steps: string[] }> {
+  ): Promise<Omit<RecipeEntity, 'steps'> & { steps: string[] }> {
     const recipe = await this.recipeRepository.findOne({
       where: { slug: slug.trim() },
       relations: {
@@ -93,16 +99,12 @@ export class RecipeService {
       },
     });
 
-    if (recipe) {
-      return {
-        ...omit(recipe, 'id'),
-        steps: recipe.steps
-          .sort((a, b) => (a.order < b.order ? -1 : 1))
-          .map((i) => i.content),
-      };
-    }
-
-    return null;
+    return recipe ? {
+      ...recipe,
+      steps: recipe.steps
+        .sort((a, b) => (a.order < b.order ? -1 : 1))
+        .map((i) => i.content),
+    } : null;
   }
 
   async saveRecipe(
@@ -181,7 +183,7 @@ export class RecipeService {
     });
 
     return {
-      ...omit(recipe, 'id'),
+      ...recipe,
       steps: recipe.steps
         .sort((a, b) => (a.order < b.order ? -1 : 1))
         .map((i) => i.content),
