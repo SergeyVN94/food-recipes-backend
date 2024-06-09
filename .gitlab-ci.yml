@@ -2,7 +2,7 @@ install-deps:
   tags:
     - production
   stage: build
-  script: npm ci
+  script: npm i
   environment: production
 
 build:
@@ -10,6 +10,13 @@ build:
     - production
   stage: build
   script: npm run build
+  environment: production
+
+seeds:
+  tags:
+    - production
+  stage: build
+  script: cp src/db/seeds/*.json dist/db/seeds && npm run seed:prod:run
   environment: production
 
 deploy:
