@@ -1,9 +1,13 @@
 build:
+  tags:
+    - production
   stage: build
   script: npm build
   environment: production
 
 deploy:
+  tags:
+    - production
   stage: deploy
   script: screen -S site_run_prod -d -m npm run start:dev
   environment: production
