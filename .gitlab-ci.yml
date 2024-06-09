@@ -1,0 +1,4 @@
+deploy:
+  stage: deploy
+  script: npm build && npm start:prod
+  environment: production
