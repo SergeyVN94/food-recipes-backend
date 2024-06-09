@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import makeSlug from 'slugify';
-import ingredientsData from './ingredients.json';
-import amountTypesData from './amount-types.json';
+import * as ingredientsData from './ingredients.json';
+import * as amountTypesData from './amount-types.json';
 
 import { RecipeIngredientEntity } from '../../modules/recipe-ingredient/entity/recipe-ingredient.entity';
 import { AmountTypeEntity } from '../../modules/recipe-ingredient/entity/amount-types.entity';
@@ -40,7 +40,11 @@ const runSeed = async (dataSource: DataSource) => {
     return item;
   });
 
-  await entityManager.save<RecipeIngredientEntity>(ingredients);
+  try {
+    await entityManager.save<RecipeIngredientEntity>(ingredients);
+  } catch (error) {
+    console.error(error);
+  }
 
   return 'Ingredients seed success!';
 };

@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import makeSlug from 'slugify';
-import amountTypesData from './amount-types.json';
+import * as amountTypesData from './amount-types.json';
 
 import { AmountTypeEntity } from '../../modules/recipe-ingredient/entity/amount-types.entity';
 
@@ -30,7 +30,11 @@ const runSeed = async (dataSource: DataSource) => {
     }
   }
 
-  await entityManager.save<AmountTypeEntity>(filteredAmountTypes);
+  try {
+    await entityManager.save<AmountTypeEntity>(filteredAmountTypes);
+  } catch (error) {
+    console.error(error);
+  }
 
   return 'Amount types seed success!';
 };
