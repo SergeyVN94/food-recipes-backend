@@ -1,27 +1,9 @@
-install-deps:
-  tags:
-    - production
-  stage: deploy
-  script: npm i
-  environment: production
-
-build:
-  tags:
-    - production
-  stage: deploy
-  script: npm run build
-  environment: production
-
-seeds:
-  tags:
-    - production
-  stage: deploy
-  script: npm run seed:prod:run
-  environment: production
+stages:
+  - deploy
 
 deploy:
   tags:
     - production
   stage: deploy
-  script: screen -S site_run_prod_back -d -m npm run start:prod
+  script: npm i && npm run build && npm run seed:prod:run && screen -S site_run_prod_back -d -m npm run start:prod
   environment: production
