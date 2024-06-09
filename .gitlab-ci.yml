@@ -1,21 +1,21 @@
 install-deps:
   tags:
     - production
-  stage: build
+  stage: deploy
   script: npm i
   environment: production
 
 build:
   tags:
     - production
-  stage: build
+  stage: deploy
   script: npm run build
   environment: production
 
 seeds:
   tags:
     - production
-  stage: build
+  stage: deploy
   script: npm run seed:prod:run
   environment: production
 
