@@ -12,6 +12,13 @@ build:
   script: npm run build
   environment: production
 
+seeds:
+  tags:
+    - production
+  stage: build
+  script: npm run seed:prod:run
+  environment: production
+
 deploy:
   tags:
     - production
