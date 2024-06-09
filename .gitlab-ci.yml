@@ -16,5 +16,5 @@ deploy:
   tags:
     - production
   stage: deploy
-  script: screen -S site_run_prod -d -m npm run start:dev
+  script: screen -S site_run_prod_back -d -m npm run start:prod
   environment: production
