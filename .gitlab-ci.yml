@@ -1,8 +1,15 @@
+install-deps:
+  tags:
+    - production
+  stage: build
+  script: npm ci
+  environment: production
+
 build:
   tags:
     - production
   stage: build
-  script: npm build
+  script: npm run build
   environment: production
 
 deploy:
