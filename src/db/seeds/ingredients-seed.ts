@@ -1,10 +1,7 @@
 import { DataSource } from 'typeorm';
-const makeSlug = require('slugify');
-const ingredientsData: {
-  name: string;
-  validAmountTypes: number[];
-}[] = require('./ingredients.json');
-const amountTypesData = require('./amount-types.json');
+import makeSlug from 'slugify';
+import ingredientsData from './ingredients.json';
+import amountTypesData from './amount-types.json';
 
 import { RecipeIngredientEntity } from '../../modules/recipe-ingredient/entity/recipe-ingredient.entity';
 import { AmountTypeEntity } from '../../modules/recipe-ingredient/entity/amount-types.entity';
