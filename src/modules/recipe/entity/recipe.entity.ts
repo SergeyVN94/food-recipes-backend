@@ -50,6 +50,9 @@ export class RecipeEntity {
   })
   userId: UserEntity['id'];
 
+  @Column({ default: false })
+  isDeleted: boolean;
+
   @CreateDateColumn()
   createdAt: string;
 

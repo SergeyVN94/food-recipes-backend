@@ -13,6 +13,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiCreatedResponse,
   ApiParam,
   ApiQuery,
@@ -29,12 +30,8 @@ import { RecipesFilterDto } from './dto/filter.dto';
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
 
-  @ApiQuery({ name: 'q', type: String, required: false })
-  @ApiQuery({ name: 'slugs', type: String, isArray: true, required: false })
-  @ApiQuery({
-    name: 'ingredients',
-    type: String,
-    isArray: true,
+  @ApiBody({
+    type: RecipesFilterDto,
     required: false,
   })
   @ApiCreatedResponse({ type: RecipeEntity, isArray: true })

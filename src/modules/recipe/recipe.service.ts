@@ -63,9 +63,6 @@ export class RecipeService {
         ?.map((i) => `'${i}'`)
         .join(',');
 
-      if (includesList) {
-        query = query.andHaving(`ingredient.ingredientId IN (${includesList})`);
-      }
 
       if (excludesList) {
         const subQuery = this.recipeIngredientUnitRepository.createQueryBuilder('ingredient').select('recipeId').where(`ingredient.ingredientId IN (${excludesList})`).getQuery();
@@ -76,11 +73,9 @@ export class RecipeService {
       }
 
       if (includesList) {
-        query = query.andWhere(`ingredient.ingredientId IN (${includesList})`);
+        query = query.andWhere(`ingredientId IN (${includesList})`).andHaving(`count(ingredient.recipeId)=${filter.ingredients.includes.length}`);
       }
     }
-
-    console.log(query.getQuery());
 
     return await query.getMany();
   }
@@ -122,7 +117,7 @@ export class RecipeService {
         ingredientObj = JSON.parse(ingredientJSON);
       } catch (error) {
         throw new HttpException(
-          `Invalid insgredient value at index ${index}`,
+          `Invalid ingredient value at index ${index}`,
           HttpStatus.EXPECTATION_FAILED,
         );
       }
