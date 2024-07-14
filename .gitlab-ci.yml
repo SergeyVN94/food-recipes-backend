@@ -22,5 +22,6 @@ deploy-pm2-job:
     - build-job
   script: 
     - mkdir -p /var/www/recipe/server
+    - rm -rf /var/www/recipe/server/*
     - mv dist/* /var/www/recipe/server
     - pm2 start /var/www/recipe/server/main.js --attach
