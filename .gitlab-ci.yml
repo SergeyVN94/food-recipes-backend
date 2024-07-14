@@ -23,7 +23,7 @@ deploy-pm2-job:
   script: 
     - mkdir -p /var/www/recipe/backend
     - rm -rf /var/www/recipe/backend/*
-    - mv dist node_modules ecosystem.config.js /var/www/recipe/backend
+    - cp dist node_modules ecosystem.config.js /var/www/recipe/backend
     - cd /var/www/recipe/backend
     - node dist/db/seeds
     - pm2 startOrRestart ecosystem.config.js
