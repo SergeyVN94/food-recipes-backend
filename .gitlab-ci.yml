@@ -7,8 +7,9 @@ build-job:
   environment: production
   artifacts:
     paths:
-      - "dist/"
-      - "node_modules/"
+      - "dist"
+      - "node_modules"
+      - "ecosystem.config.js"
     when: always
   before_script:
     - npm ci
@@ -25,7 +26,6 @@ deploy-pm2-job:
     - mkdir -p /var/www/recipe/server
     - rm -rf /var/www/recipe/server/*
     - mv dist/* /var/www/recipe/server
-    - mv node_modules/ /var/www/recipe/server
-    - pm2 stop main
-    - pm2 del main
-    - pm2 start /var/www/recipe/server/main.js
+    - mv node_modules /var/www/recipe/server
+    - mv ecosystem.config.js /var/www/recipe/server
+    - pm2 startOrRestart ecosystem.config.js
