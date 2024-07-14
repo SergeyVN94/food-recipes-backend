@@ -28,4 +28,5 @@ deploy-pm2-job:
     - mv dist/* /var/www/recipe/server
     - mv node_modules /var/www/recipe/server
     - mv ecosystem.config.js /var/www/recipe/server
+    - cd /var/www/recipe/server
     - pm2 startOrRestart ecosystem.config.js
