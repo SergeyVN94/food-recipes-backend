@@ -1,9 +1,32 @@
 stages:
+  - install
+  - build
   - deploy
 
-deploy:
-  tags:
-    - production
-  stage: deploy
-  script: ./build.sh
+install-deps:
+  stage: install
   environment: production
+  script: 
+    - npm ci
+
+build-serve:
+  stage: build
+  environment: production
+  dependencies:
+    - install-deps
+  script: 
+    - npm run build
+    - npm run seed:prod:run
+
+deploy-pm2:
+  stage: deploy
+  environment: production
+  dependencies:
+    - build-serve
+  artifacts:
+    paths:
+      - "public/"
+  script: 
+    - mv dist/* public/
+    - pm2 start public/main.js --attach
+
