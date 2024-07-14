@@ -3,7 +3,7 @@ stages:
   - deploy
 
 build-job:
-  stage: install
+  stage: build
   environment: production
   artifacts:
     paths:
