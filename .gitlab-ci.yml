@@ -8,6 +8,9 @@ install-deps:
   environment: production
   script: 
     - npm ci
+  artifacts:
+    paths:
+      - "dist/"
 
 build-serve:
   stage: build
