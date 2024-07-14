@@ -21,11 +21,9 @@ deploy-pm2-job:
   dependencies:
     - build-job
   script: 
-    - mkdir -p /var/www/recipe/server
-    - rm -rf /var/www/recipe/server/*
-    - mv dist/* /var/www/recipe/server
-    - mv node_modules /var/www/recipe/server
-    - mv ecosystem.config.js /var/www/recipe/server
-    - cd /var/www/recipe/server
+    - mkdir -p /var/www/recipe/backend
+    - rm -rf /var/www/recipe/backend/*
+    - mv dist node_modules ecosystem.config.js /var/www/recipe/backend
+    - cd /var/www/recipe/backend
     - node dist/db/seeds
     - pm2 startOrRestart ecosystem.config.js
