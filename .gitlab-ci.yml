@@ -8,6 +8,7 @@ build-job:
   artifacts:
     paths:
       - "dist/"
+      - "node_modules/"
     when: always
   before_script:
     - npm ci
@@ -24,4 +25,7 @@ deploy-pm2-job:
     - mkdir -p /var/www/recipe/server
     - rm -rf /var/www/recipe/server/*
     - mv dist/* /var/www/recipe/server
-    - pm2 start /var/www/recipe/server/main.js --attach
+    - mv node_modules/ /var/www/recipe/server
+    - pm2 stop main
+    - pm2 del main
+    - pm2 start /var/www/recipe/server/main.js
