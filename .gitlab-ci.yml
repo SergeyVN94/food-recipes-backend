@@ -3,33 +3,33 @@ stages:
   - build
   - deploy
 
-install-deps:
+install-deps-job:
   stage: install
   environment: production
   script: 
     - npm ci
   artifacts:
     paths:
-      - "dist/"
+      - "node_modules/"
 
-build-serve:
+build-serve-job:
   stage: build
   environment: production
   dependencies:
-    - install-deps
+    - install-deps-job
   script: 
     - npm run build
     - npm run seed:prod:run
+  artifacts:
+    paths:
+      - "dist/"
 
-deploy-pm2:
+deploy-pm2-job:
   stage: deploy
   environment: production
   dependencies:
-    - build-serve
-  artifacts:
-    paths:
-      - "public/"
+    - build-serve-job
   script: 
-    - mv dist/* public/
-    - pm2 start public/main.js --attach
-
+    - mkdir -p /var/www/recipe/server
+    - mv dist/* /var/www/recipe/server
+    - pm2 start /var/www/recipe/server/main.js --attach
