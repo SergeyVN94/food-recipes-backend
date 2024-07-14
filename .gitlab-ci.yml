@@ -11,11 +11,9 @@ build-job:
       - "node_modules"
       - "ecosystem.config.js"
     when: always
-  before_script:
-    - npm ci
   script:
+    - npm ci
     - npm run build
-    - npm run seed:prod:run
 
 deploy-pm2-job:
   stage: deploy
@@ -29,4 +27,5 @@ deploy-pm2-job:
     - mv node_modules /var/www/recipe/server
     - mv ecosystem.config.js /var/www/recipe/server
     - cd /var/www/recipe/server
+    - node dist/db/seeds
     - pm2 startOrRestart ecosystem.config.js
