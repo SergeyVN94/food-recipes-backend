@@ -1,32 +1,37 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 
 import { RecipeIngredientService } from './recipe-ingredient.service';
-import {
-  AmountType,
-  QueryFilter,
-  RecipeIngredient,
-} from './recipe-ingredient.types';
+import { RecipeIngredientDto } from './dto/recipe-ingredient.dto';
+import { AmountTypeDto } from './dto/amount-type.dto';
+import { SearchFilterDto } from 'src/dto/search-filter.dto';
+import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Ингредиенты')
 @Controller('/api/v1/recipe-ingredients')
 export class RecipeIngredientController {
   constructor(private readonly ingredientService: RecipeIngredientService) {}
 
+  @ApiResponse({ type: RecipeIngredientDto, isArray: true })
   @Get()
   async getRecipeIngredients(
-    @Query() filter: QueryFilter = {},
-  ): Promise<RecipeIngredient[]> {
+    @Query() filter: SearchFilterDto,
+  ): Promise<RecipeIngredientDto[]> {
     return await this.ingredientService.getIngredients(filter);
   }
 
+  @ApiResponse({ type: AmountTypeDto, isArray: true })
   @Get('amount-types')
-  async getTypes(): Promise<AmountType[]> {
+  async getTypes(): Promise<AmountTypeDto[]> {
     return await this.ingredientService.getAmountTypes();
   }
 
+  @ApiParam({ name: 'id' })
+  @ApiResponse({ type: RecipeIngredientDto })
   @Get(':id')
   async getRecipeIngredientById(
     @Param() id: string,
-  ): Promise<RecipeIngredient> {
-    return await this.ingredientService.getIngredientById(id);
+  ): Promise<RecipeIngredientDto> {
+    return await this.ingredientService.getIngredientById(Number(id));
   }
 }

@@ -8,8 +8,10 @@ import {
 
 @Entity()
 export class AmountTypeEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn('increment', {
+    type: 'integer',
+  })
+  id!: number;
 
   @Column({ unique: true })
   name: string;

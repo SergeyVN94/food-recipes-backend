@@ -14,9 +14,10 @@ import {
 } from '@nestjs/common';
 import {
   ApiBody,
-  ApiCreatedResponse,
   ApiParam,
-  ApiQuery,
+  ApiProperty,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -26,6 +27,7 @@ import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeResponse } from './recipe.types';
 import { RecipesFilterDto } from './dto/filter.dto';
 
+@ApiTags('Рецепты')
 @Controller('/api/v1/recipes')
 export class RecipeController {
   constructor(private readonly recipeService: RecipeService) {}
@@ -34,7 +36,7 @@ export class RecipeController {
     type: RecipesFilterDto,
     required: false,
   })
-  @ApiCreatedResponse({ type: RecipeEntity, isArray: true })
+  @ApiResponse({ type: RecipeDto, isArray: true })
   @Post('/search')
   @HttpCode(200)
   async getRecipes(@Body() filter: RecipesFilterDto): Promise<RecipeEntity[]> {
@@ -42,7 +44,7 @@ export class RecipeController {
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })
-  @ApiCreatedResponse({ type: RecipeEntity })
+  @ApiResponse({ type: RecipeDto })
   @Get(':slug')
   async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeResponse> {
     const recipe = await this.recipeService.getRecipeBySlug(slug);
@@ -54,6 +56,7 @@ export class RecipeController {
     return recipe;
   }
 
+  @ApiResponse({ type: RecipeDto })
   @Post()
   @UseInterceptors(FilesInterceptor('images', 3))
   async saveRecipe(

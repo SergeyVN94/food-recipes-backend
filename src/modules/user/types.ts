@@ -1,19 +1,6 @@
 export enum UserRole {
-  USER = 'user',
-  ADMIN = 'admin',
+  ADMIN = 'ADMIN',
+  RECIPES_MODERATOR = 'RECIPES_MODERATOR',
+  COMMENTS_MODERATOR = 'COMMENTS_MODERATOR',
+  USER = 'USER',
 }
-
-export type UserRegistry = {
-  login: string;
-  email: string;
-  password: string;
-};
-
-export type User = {
-  id: string;
-  userName: string;
-  email: string;
-  role: UserRole;
-  createdAt: string;
-  updateAt: string;
-};

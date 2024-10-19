@@ -3,8 +3,6 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -46,7 +44,7 @@ export class RecipeEntity {
 
   @OneToOne(() => UserEntity, (user) => user.id)
   @JoinColumn({
-    name: 'userId'
+    name: 'userId',
   })
   userId: UserEntity['id'];
 

@@ -12,8 +12,11 @@ import { UserService } from 'src/modules/user';
 
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
-import { UserRegDto } from './dto/userReg.dto';
+import { UserRegistryDto } from './dto/user-registry.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags('Авторизация')
 @Controller('/api/v1/auth')
 export class AuthController {
   constructor(
@@ -22,24 +25,23 @@ export class AuthController {
   ) {}
 
   @Post('signup')
-  async signup(@Body() userRegDto: UserRegDto) {
+  async signUp(@Body() userRegDto: UserRegistryDto) {
     console.log(userRegDto);
 
-    const { email, login, password } = userRegDto ?? {};
+    const isUserExist = await this.userService.isUserExist(userRegDto.email);
 
-    if (!email) throw new UnauthorizedException('email is required');
-    if (!login) throw new UnauthorizedException('login is required');
-    if (!password) throw new UnauthorizedException('password is required');
-    if (await this.userService.isUserExist(email))
-      throw new ConflictException('User exist!');
+    if (isUserExist) {
+      throw new ConflictException('User exist');
+    }
 
-    const newUser = await this.authService.signup(userRegDto);
-    return await this.authService.login(newUser);
+    const newUser = await this.authService.signUp(userRegDto);
+
+    return await this.authService.signIn(newUser);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
-    return await this.authService.login(req.user);
+  async signIn(@Request() req) {
+    return await this.authService.signIn(req.user);
   }
 }

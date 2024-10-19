@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -22,11 +23,11 @@ export class RecipeIngredientUnitEntity {
   @Column()
   count: number;
 
-  @ManyToOne(() => RecipeIngredientEntity)
+  @ManyToMany(() => RecipeIngredientEntity)
   @JoinColumn()
   ingredient: RecipeIngredientEntity;
 
-  @ManyToOne(() => AmountTypeEntity)
+  @ManyToMany(() => AmountTypeEntity)
   @JoinColumn()
   amountType: AmountTypeEntity; 
 

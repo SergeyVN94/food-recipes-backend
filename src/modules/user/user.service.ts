@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import omit from 'lodash/omit';
 
-import { User, UserRole } from './types';
+import { UserRole } from './types';
 import { UserEntity } from './user.entity';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,40 +14,45 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
+  async findUserById(id: string) {
+    const foundUser = await this.userRepository.findOne({ where: { id } });
+
+    return foundUser ? omit((foundUser as UserDto), 'passHash') : null;
+  }
+
+  async findUserByName(name: string) {
+    const foundUser = await this.userRepository.findOne({
+      where: { userName: name },
+    });
+
+    return foundUser ? omit((foundUser as UserDto), 'passHash') : null;
+  }
+
+  async findUserByEmail(email: string) {
+    const foundUser = await this.userRepository.findOne({ where: { email } });
+
+    delete foundUser.passHash;
+
+    return foundUser ? omit(foundUser, 'passHash') : null;
+  }
+
   async addUser(user: {
     email: string;
     userName: string;
     passHash: string;
     role: UserRole;
+    salt: string;
   }) {
     return await this.userRepository.save(user);
   }
 
-  async getUserWithPassHash(email: string): Promise<{ user: User, hash: string } | null> {
-    const foundUser = await this.userRepository.findOne({ where: { email } });
-    if (!foundUser) return null;
-    return ({ user: omit(foundUser, 'passHash'), hash: foundUser.passHash });
+  async getUserWithPassHash(email: string) {
+    return await this.userRepository.findOne({ where: { email } });
   }
 
-  async findUserById(id: string): Promise<User | null> {
-    const foundUser = await this.userRepository.findOne({ where: { id } });
-    return foundUser ? omit((foundUser as User), 'passHash') : null;
-  }
-
-  async findUserByEmail(email: string): Promise<User | null> {
-    const foundUser = await this.userRepository.findOne({ where: { email } });
-    return foundUser ? omit((foundUser as User), 'passHash'): null;
-  }
-
-  async findUserByName(name: string): Promise<User | null> {
-    const foundUser = await this.userRepository.findOne({
-      where: { userName: name },
-    });
-    return foundUser ? omit((foundUser as User), 'passHash'): null;
-  }
-
-  async isUserExist(email: string): Promise<boolean> {
+  async isUserExist(email: string) {
     const req = { where: { email } };
+
     return (await this.userRepository.count(req)) > 0;
   }
 

@@ -23,6 +23,9 @@ export class UserEntity {
   passHash: string;
 
   @Column()
+  salt: string;
+
+  @Column()
   role: UserRole;
 
   @CreateDateColumn()

@@ -11,8 +11,10 @@ import { AmountTypeEntity } from './amount-types.entity';
 
 @Entity()
 export class RecipeIngredientEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn('increment', {
+    type: 'integer',
+  })
+  id!: number;
 
   @Column()
   name: string;

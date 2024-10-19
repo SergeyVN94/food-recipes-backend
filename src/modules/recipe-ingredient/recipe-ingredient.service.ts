@@ -3,8 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Like, Repository } from 'typeorm';
 
 import { RecipeIngredientEntity } from './entity/recipe-ingredient.entity';
-import { AmountType, QueryFilter, RecipeIngredient } from './recipe-ingredient.types';
 import { AmountTypeEntity } from './entity/amount-types.entity';
+import { RecipeIngredientDto } from './dto/recipe-ingredient.dto';
+import { AmountTypeDto } from './dto/amount-type.dto';
+import { SearchFilterDto } from 'src/dto/search-filter.dto';
 
 @Injectable()
 export class RecipeIngredientService {
@@ -15,14 +17,15 @@ export class RecipeIngredientService {
     private amountTypeRepository: Repository<AmountTypeEntity>,
   ) {}
 
-  async getIngredients(filter: QueryFilter = {}) {
+  async getIngredients(filter: SearchFilterDto) {
     const findOptions: FindManyOptions<RecipeIngredientEntity> = {
       relations: {
         amountTypes: true,
       },
     };
 
-    const query = (filter.query ?? '').trim().toLowerCase();
+    const query = (filter.q ?? '').trim().toLowerCase();
+    
     if (query.length > 0) {
       findOptions.where['name'] = Like(query);
     }
@@ -33,14 +36,14 @@ export class RecipeIngredientService {
   }
 
   async getIngredientById(
-    id: RecipeIngredient['id'],
-  ): Promise<RecipeIngredient | null> {
+    id: RecipeIngredientDto['id'],
+  ): Promise<RecipeIngredientDto | null> {
     return await this.recipeRepository.findOne({
       where: { id },
     });
   }
 
-  async getAmountTypes(): Promise<AmountType[]> {
+  async getAmountTypes(): Promise<AmountTypeDto[]> {
     return await this.amountTypeRepository.find();
   }
 }

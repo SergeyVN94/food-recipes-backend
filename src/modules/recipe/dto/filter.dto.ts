@@ -1,13 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString,  } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
-class IngredientsDto {
+class IngredientsFilterDto {
+  @ApiProperty({ required: false })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
   includes?: string[];
 
+  @ApiProperty({ required: false })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
@@ -15,20 +17,19 @@ class IngredientsDto {
 }
 
 export class RecipesFilterDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'Строка поиска по названиям рецептов', required: false })
   @IsString()
   @IsOptional()
   q?: string;
   
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
   slugs?: string[];
 
-  @ApiProperty()
-  
+  @ApiProperty({ description: 'Списки id ингредиентов', required: false })
   @IsOptional()
-  @Type(() => IngredientsDto)
-  ingredients?: IngredientsDto;
+  @Type(() =>IngredientsFilterDto)
+  ingredients?: IngredientsFilterDto;
 }

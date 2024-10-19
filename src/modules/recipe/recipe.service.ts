@@ -137,13 +137,13 @@ export class RecipeService {
           `Invalid ingredient value at index ${index}`,
           HttpStatus.EXPECTATION_FAILED,
         );
-      }
+      }      
 
       const amountType = new AmountTypeEntity();
-      amountType.id = amountTypeId;
+      amountType.id = Number(amountTypeId);
 
       const ingredient = new RecipeIngredientEntity();
-      ingredient.id = ingredientId;
+      ingredient.id = Number(ingredientId);
 
       return {
         amountType,
@@ -171,8 +171,8 @@ export class RecipeService {
     const recipe = await this.recipeRepository.save({
       slug,
       steps,
-      images: images.map((i) => i.path),
       ingredients,
+      images: images.map((image) => image.path),
       description: dto.description,
       title: dto.title,
     });
@@ -181,7 +181,7 @@ export class RecipeService {
       ...recipe,
       steps: recipe.steps
         .sort((a, b) => (a.order < b.order ? -1 : 1))
-        .map((i) => i.content),
+        .map((item) => item.content),
     };
   }
 }

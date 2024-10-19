@@ -25,7 +25,6 @@ async function bootstrap() {
     .setTitle('Рецепты')
     .setDescription('Апи для сайта рецептов')
     .setVersion('1.0')
-    .addTag('recipes')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, document);
