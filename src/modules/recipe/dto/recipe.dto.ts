@@ -1,38 +1,38 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { RecipeIngredientUnitEntity } from '../entity/recipe-ingredient-unit.entity';
+import { RecipeStepEntity } from '../entity/recipe-step.entity';
 
 export class RecipeDto {
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  public id: string;
+
+  @ApiProperty()
   public title: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  public slug: string;
+
+  @ApiProperty()
   public description: string;
 
-  @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  public tags: string[];
+  @ApiProperty({ type: RecipeIngredientUnitEntity, isArray: true })
+  public ingredients: RecipeIngredientUnitEntity[];
 
   @ApiProperty()
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
   public images: string[];
 
-  @ApiProperty()
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsString({ each: true })
-  public steps: string[];
+  @ApiProperty({ isArray: true })
+  public steps: RecipeStepEntity[];
 
   @ApiProperty()
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsString({ each: true })
-  public ingredients: string[];
+  public userId: string;
+
+  @ApiProperty()
+  public isDeleted: boolean;
+
+  @ApiProperty()
+  public createdAt: string;
+  
+  @ApiProperty()
+  public updateAt: string;
 }

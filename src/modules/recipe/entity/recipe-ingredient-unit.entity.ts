@@ -5,6 +5,8 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -23,11 +25,11 @@ export class RecipeIngredientUnitEntity {
   @Column()
   count: number;
 
-  @ManyToMany(() => RecipeIngredientEntity)
+  @OneToOne(() => RecipeIngredientEntity)
   @JoinColumn()
   ingredient: RecipeIngredientEntity;
 
-  @ManyToMany(() => AmountTypeEntity)
+  @OneToOne(() => AmountTypeEntity)
   @JoinColumn()
   amountType: AmountTypeEntity; 
 

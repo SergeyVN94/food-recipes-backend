@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
 import makeSlug from 'slugify';
-import * as amountTypesData from './amount-types.json';
 
-import { AmountTypeEntity } from '../../modules/recipe-ingredient/entity/amount-types.entity';
+import { AmountTypeEntity } from '@/modules/recipe-ingredient/entity/amount-types.entity';
+import * as amountTypesData from './amount-types.json';
 
 const runSeed = async (dataSource: DataSource) => {
   const entityManager = dataSource.createEntityManager();

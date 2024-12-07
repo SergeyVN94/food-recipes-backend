@@ -13,7 +13,7 @@ export class UserRegistryDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ minLength: 3 })
   @IsString()
   @IsNotEmpty()
   @IsStrongPassword({

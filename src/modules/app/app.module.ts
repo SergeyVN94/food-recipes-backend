@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
-import { RecipeModule } from 'src/modules/recipe';
-import { RecipeIngredientModule } from 'src/modules/recipe-ingredient';
-// import { FavoritesModule } from 'src/modules/favorites';
-import { AuthModule } from 'src/modules/auth';
-import dataSourceOptions from 'src/db/data-source-options';
+import { RecipeModule } from '@/modules/recipe';
+import { RecipeIngredientModule } from '@/modules/recipe-ingredient';
+import { AuthModule } from '@/modules/auth';
+import dataSourceOptions from '@/config/data-source-options';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UserModule } from '../user';
 
 @Module({
   imports: [
@@ -17,9 +17,9 @@ import { AppService } from './app.service';
       envFilePath: ['.env.local'],
     }),
     AuthModule,
+    UserModule,
     RecipeModule,
     RecipeIngredientModule,
-    // FavoritesModule,
     TypeOrmModule.forRoot(dataSourceOptions),
   ],
   controllers: [AppController],

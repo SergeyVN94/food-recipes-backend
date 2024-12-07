@@ -5,15 +5,14 @@ import createSlug from 'slugify';
 import { isEmpty } from 'lodash';
 
 import { RecipeEntity } from './entity/recipe.entity';
-import { Recipe } from './types';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
-import { RecipeResponse } from './recipe.types';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
 import { AmountTypeEntity } from '../recipe-ingredient/entity/amount-types.entity';
 import { RecipeIngredientEntity } from '../recipe-ingredient/entity/recipe-ingredient.entity';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
+import { RecipeDto } from './dto/recipe.dto';
 
 @Injectable()
 export class RecipeService {
@@ -81,31 +80,26 @@ export class RecipeService {
   }
 
   async getRecipeBySlug(
-    slug: Recipe['slug'],
-  ): Promise<Omit<RecipeEntity, 'steps'> & { steps: string[] }> {
+    slug: RecipeEntity['slug'],
+  ): Promise<RecipeEntity> {
     const recipe = await this.recipeRepository.findOne({
-      where: { slug: slug.trim() },
+      where: { slug },
       relations: {
         steps: true,
         ingredients: {
-          amountType: true,
           ingredient: true,
+          amountType: true,
         },
       },
     });
 
-    return recipe ? {
-      ...recipe,
-      steps: recipe.steps
-        .sort((a, b) => (a.order < b.order ? -1 : 1))
-        .map((i) => i.content),
-    } : null;
+    return recipe;
   }
 
   async saveRecipe(
-    dto: Omit<RecipeDto, 'images'>,
+    dto: Omit<RecipeCreateDto, 'images'>,
     files: Express.Multer.File[],
-  ): Promise<RecipeResponse> {
+  ): Promise<RecipeEntity> {
     const images = await Promise.all(
       files.map((file) => this.minioClientService.upload(file, 'recipes')),
     );
@@ -177,11 +171,6 @@ export class RecipeService {
       title: dto.title,
     });
 
-    return {
-      ...recipe,
-      steps: recipe.steps
-        .sort((a, b) => (a.order < b.order ? -1 : 1))
-        .map((item) => item.content),
-    };
+    return recipe;
   }
 }

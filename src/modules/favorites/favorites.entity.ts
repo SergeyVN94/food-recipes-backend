@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 
 import { UserEntity } from '../user';
-import { RecipeEntity, Recipe } from '../recipe';
+import { RecipeEntity } from '../recipe';
 
 @Entity()
 export class FavoritesEntity {
@@ -22,7 +22,7 @@ export class FavoritesEntity {
 
   @OneToMany(() => RecipeEntity, (recipe) => recipe.id)
   @JoinColumn()
-  recipesId: Recipe['id'][];
+  recipesId: RecipeEntity['id'][];
 
   @CreateDateColumn()
   createdAt: string;

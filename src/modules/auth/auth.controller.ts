@@ -4,17 +4,16 @@ import {
   Controller,
   Post,
   Request,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 
-import { UserService } from 'src/modules/user';
+import { UserService } from '@/modules/user';
 
-import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { UserRegistryDto } from './dto/user-registry.dto';
-import { ApiTags } from '@nestjs/swagger';
-
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { TokenResponseDto } from './dto/token-response.dto';
+import { JwtAuthGuard } from './jwt.guard';
 
 @ApiTags('Авторизация')
 @Controller('/api/v1/auth')
@@ -24,10 +23,9 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
+  @ApiResponse({ type: TokenResponseDto })
   @Post('signup')
   async signUp(@Body() userRegDto: UserRegistryDto) {
-    console.log(userRegDto);
-
     const isUserExist = await this.userService.isUserExist(userRegDto.email);
 
     if (isUserExist) {
@@ -39,7 +37,8 @@ export class AuthController {
     return await this.authService.signIn(newUser);
   }
 
-  @UseGuards(LocalAuthGuard)
+  @ApiResponse({ type: TokenResponseDto })
+  @UseGuards(JwtAuthGuard)
   @Post('login')
   async signIn(@Request() req) {
     return await this.authService.signIn(req.user);

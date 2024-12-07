@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import omit from 'lodash/omit';
+import { omit }  from 'lodash';
 
 import { UserRole } from './types';
 import { UserEntity } from './user.entity';
@@ -17,7 +17,7 @@ export class UserService {
   async findUserById(id: string) {
     const foundUser = await this.userRepository.findOne({ where: { id } });
 
-    return foundUser ? omit((foundUser as UserDto), 'passHash') : null;
+    return foundUser ? omit((foundUser as UserDto), ['passHash', 'salt']) : null;
   }
 
   async findUserByName(name: string) {
@@ -25,7 +25,7 @@ export class UserService {
       where: { userName: name },
     });
 
-    return foundUser ? omit((foundUser as UserDto), 'passHash') : null;
+    return foundUser ? omit((foundUser as UserDto), ['passHash', 'salt']) : null;
   }
 
   async findUserByEmail(email: string) {
@@ -33,7 +33,7 @@ export class UserService {
 
     delete foundUser.passHash;
 
-    return foundUser ? omit(foundUser, 'passHash') : null;
+    return foundUser ? omit(foundUser, ['passHash', 'salt']) : null;
   }
 
   async addUser(user: {

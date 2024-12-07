@@ -7,7 +7,7 @@ import * as request from 'supertest';
 
 import { RecipeController } from './recipe.controller';
 import { RecipeEntity } from './entity/recipe.entity';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeDto } from './dto/recipe-create.dto';
 import { RecipeService } from './recipe.service';
 
 const lorem = new LoremIpsum({

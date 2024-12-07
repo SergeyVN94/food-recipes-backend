@@ -6,7 +6,7 @@ import { RecipeIngredientEntity } from './entity/recipe-ingredient.entity';
 import { AmountTypeEntity } from './entity/amount-types.entity';
 import { RecipeIngredientDto } from './dto/recipe-ingredient.dto';
 import { AmountTypeDto } from './dto/amount-type.dto';
-import { SearchFilterDto } from 'src/dto/search-filter.dto';
+import { SearchFilterDto } from '@/dto/search-filter.dto';
 
 @Injectable()
 export class RecipeIngredientService {

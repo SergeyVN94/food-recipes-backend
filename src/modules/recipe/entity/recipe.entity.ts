@@ -33,12 +33,14 @@ export class RecipeEntity {
   @OneToMany(() => RecipeIngredientUnitEntity, (unit) => unit.recipe, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    cascade: true,
   })
   ingredients: RecipeIngredientUnitEntity[];
 
   @OneToMany(() => RecipeStepEntity, (step) => step.recipe, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    cascade: true,
   })
   steps: RecipeStepEntity[];
 

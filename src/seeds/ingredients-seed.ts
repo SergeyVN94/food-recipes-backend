@@ -3,8 +3,8 @@ import makeSlug from 'slugify';
 import * as ingredientsData from './ingredients.json';
 import * as amountTypesData from './amount-types.json';
 
-import { RecipeIngredientEntity } from '../../modules/recipe-ingredient/entity/recipe-ingredient.entity';
-import { AmountTypeEntity } from '../../modules/recipe-ingredient/entity/amount-types.entity';
+import { RecipeIngredientEntity } from '../modules/recipe-ingredient/entity/recipe-ingredient.entity';
+import { AmountTypeEntity } from '../modules/recipe-ingredient/entity/amount-types.entity';
 
 const runSeed = async (dataSource: DataSource) => {
   const entityManager = dataSource.createEntityManager();

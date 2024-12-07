@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 
+import { SearchFilterDto } from '@/dto/search-filter.dto';
 import { RecipeIngredientService } from './recipe-ingredient.service';
 import { RecipeIngredientDto } from './dto/recipe-ingredient.dto';
 import { AmountTypeDto } from './dto/amount-type.dto';
-import { SearchFilterDto } from 'src/dto/search-filter.dto';
-import { ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 
 @ApiTags('Ингредиенты')
