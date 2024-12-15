@@ -15,10 +15,10 @@ export class UserController {
   @Get()
   async self(@Req() req) {
     const { userId } = req.user ?? {};
-    const user = await this.userService.findUserById(userId);
+    const user = await this.userService.findById(userId);
 
     if (!user) {
-      throw new Error('Пользователь не найден');
+      throw new Error('User not found');
     }
 
     return user;

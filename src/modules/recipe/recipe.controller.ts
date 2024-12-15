@@ -9,6 +9,7 @@ import {
   ParseFilePipeBuilder,
   Post,
   Put,
+  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -72,8 +73,9 @@ export class RecipeController {
         }),
     )
     files: Express.Multer.File[] = [],
+    @Req() req,
   ) {
-    const newRecipe = await this.recipeService.saveRecipe(body, files);
+    const newRecipe = await this.recipeService.saveRecipe(body, files, req.user.userId);
 
     return newRecipe;
   }

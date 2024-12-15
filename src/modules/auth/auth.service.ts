@@ -2,14 +2,14 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { UserDto, UserRole, UserService } from '@/modules/user';
+import { UserDto, UserEntity, UserRole, UserService } from '@/modules/user';
 import { UserRegistryDto } from './dto/user-registry.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService, private jwt: JwtService) {}
 
-  async signIn(user: UserDto) {
+  async signIn(user: UserEntity) {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -21,11 +21,11 @@ export class AuthService {
     };
   }
 
-  async signUp(user: UserRegistryDto): Promise<UserDto> {
+  async signUp(user: UserRegistryDto): Promise<UserEntity> {
     const salt = await bcrypt.genSalt();
     const passHash = await bcrypt.hash(user.password, salt);
     
-    return await this.userService.addUser({
+    return await this.userService.create({
       salt,
       passHash,
       userName: user.userName,
@@ -35,16 +35,16 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.userService.getUserWithPassHash(email);
+    const user = await this.userService.getWithPassHash(email);
     
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException('User or password incorrect');
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.passHash);
 
     if (!isPasswordCorrect) {
-      throw new UnauthorizedException('Invalid password');
+      throw new UnauthorizedException('User or password incorrect');
     }
 
     return user;

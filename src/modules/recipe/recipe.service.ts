@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Raw, Repository } from 'typeorm';
 import createSlug from 'slugify';
 import { isEmpty } from 'lodash';
 
@@ -13,6 +13,7 @@ import { RecipeIngredientEntity } from '../recipe-ingredient/entity/recipe-ingre
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
+import { UserEntity } from '../user';
 
 @Injectable()
 export class RecipeService {
@@ -29,13 +30,26 @@ export class RecipeService {
 
   async getRecipes(filter: RecipesFilterDto = {}): Promise<RecipeEntity[]> {
     if (isEmpty(filter)) {
-      return await this.recipeRepository.find();
+      return await this.recipeRepository.find({
+        relations: {
+          steps: true,
+          ingredients: {
+            ingredient: true,
+            amountType: true,
+          },
+          user: true,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+      });
     }
 
     let query = this.recipeRepository
       .createQueryBuilder('recipe')
-      .innerJoin('recipe.ingredients', 'ingredient')
-      .groupBy('ingredient.recipeId');
+      .select('recipe.id', 'id')
+      .innerJoin('recipe.ingredients', 'recipeIngredients')
+      .groupBy('recipeIngredients.recipeId');
 
     if (filter.q?.length > 0) {
       query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
@@ -64,7 +78,11 @@ export class RecipeService {
 
 
       if (excludesList) {
-        const subQuery = this.recipeIngredientUnitRepository.createQueryBuilder('ingredient').select('recipeId').where(`ingredient.ingredientId IN (${excludesList})`).getQuery();
+        const subQuery = this.recipeIngredientUnitRepository
+          .createQueryBuilder('recipeIngredients')
+          .select('recipeId')
+          .where(`recipeIngredients.ingredientId IN (${excludesList})`)
+          .getQuery();
 
         query = query.andWhere(
           `"recipe"."id" NOT IN (${subQuery})`,
@@ -72,11 +90,33 @@ export class RecipeService {
       }
 
       if (includesList) {
-        query = query.andWhere(`ingredientId IN (${includesList})`).andHaving(`count(ingredient.recipeId)=${filter.ingredients.includes.length}`);
+        query = query
+          .andWhere(`recipeIngredients.ingredientId IN (${includesList})`)
+          .andHaving(`count(recipeIngredients.recipeId)=${filter.ingredients.includes.length}`);
       }
     }
+    
+    const mainQuery = this.recipeRepository
+      .createQueryBuilder('recipe')
+      .leftJoinAndSelect('recipe.ingredients', 'ingredients')
+      .leftJoinAndSelect('recipe.steps', 'steps')
+      .leftJoinAndSelect('recipe.user', 'user')
+      .leftJoinAndSelect('ingredients.ingredient', 'ingredient')
+      .leftJoinAndSelect('ingredients.amountType', 'amountType')
+      .where(`recipe.id IN (${query.getQuery()})`)
+      .groupBy('recipe.id')
+      .orderBy('recipe.createdAt', 'DESC');      
 
-    return await query.getMany();
+    const result =  await mainQuery.getMany();
+    
+    result.forEach((recipe) => {
+      if (recipe.user) {
+        delete recipe.user.passHash;
+        delete recipe.user.salt;
+      }
+    });
+    
+    return result;
   }
 
   async getRecipeBySlug(
@@ -90,6 +130,7 @@ export class RecipeService {
           ingredient: true,
           amountType: true,
         },
+        user: true,
       },
     });
 
@@ -99,6 +140,7 @@ export class RecipeService {
   async saveRecipe(
     dto: Omit<RecipeCreateDto, 'images'>,
     files: Express.Multer.File[],
+    userId: UserEntity['id'],
   ): Promise<RecipeEntity> {
     const images = await Promise.all(
       files.map((file) => this.minioClientService.upload(file, 'recipes')),
@@ -162,7 +204,11 @@ export class RecipeService {
       })),
     );
 
+    const user = new UserEntity();
+    user.id = userId;
+
     const recipe = await this.recipeRepository.save({
+      user, 
       slug,
       steps,
       ingredients,

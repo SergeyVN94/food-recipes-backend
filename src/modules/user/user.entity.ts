@@ -28,6 +28,9 @@ export class UserEntity {
   @Column()
   role: UserRole;
 
+  @Column({ default: null })
+  avatar: string;
+
   @CreateDateColumn()
   createdAt: string;
 

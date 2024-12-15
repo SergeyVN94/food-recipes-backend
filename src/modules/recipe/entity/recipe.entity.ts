@@ -3,8 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -44,11 +44,8 @@ export class RecipeEntity {
   })
   steps: RecipeStepEntity[];
 
-  @OneToOne(() => UserEntity, (user) => user.id)
-  @JoinColumn({
-    name: 'userId',
-  })
-  userId: UserEntity['id'];
+  @ManyToOne(() => UserEntity)
+  user: UserEntity;
 
   @Column({ default: false })
   isDeleted: boolean;

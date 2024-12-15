@@ -14,13 +14,17 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async findUserById(id: string) {
+  async findAll() {
+    return await this.userRepository.find();
+  }
+
+  async findById(id: string) {
     const foundUser = await this.userRepository.findOne({ where: { id } });
 
     return foundUser ? omit((foundUser as UserDto), ['passHash', 'salt']) : null;
   }
 
-  async findUserByName(name: string) {
+  async findByName(name: string) {
     const foundUser = await this.userRepository.findOne({
       where: { userName: name },
     });
@@ -28,7 +32,7 @@ export class UserService {
     return foundUser ? omit((foundUser as UserDto), ['passHash', 'salt']) : null;
   }
 
-  async findUserByEmail(email: string) {
+  async findByEmail(email: string) {
     const foundUser = await this.userRepository.findOne({ where: { email } });
 
     delete foundUser.passHash;
@@ -36,7 +40,7 @@ export class UserService {
     return foundUser ? omit(foundUser, ['passHash', 'salt']) : null;
   }
 
-  async addUser(user: {
+  async create(user: {
     email: string;
     userName: string;
     passHash: string;
@@ -46,17 +50,28 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async getUserWithPassHash(email: string) {
+  async getWithPassHash(email: string) {
     return await this.userRepository.findOne({ where: { email } });
   }
 
-  async isUserExist(email: string) {
+  async isExist(email: string) {
     const req = { where: { email } };
 
     return (await this.userRepository.count(req)) > 0;
   }
 
-  async userCount() {
+  async count() {
     await this.userRepository.count();
+  }
+
+  async updateAvatar(userId: string, avatar: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new Error('User not found');
+    } else {
+      user.avatar = avatar;
+      return await this.userRepository.update(userId, user);
+    }
   }
 }

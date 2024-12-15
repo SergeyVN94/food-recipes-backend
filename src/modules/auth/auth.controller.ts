@@ -2,6 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
+  Get,
   Post,
   Request,
   UseGuards,
@@ -14,6 +15,7 @@ import { UserRegistryDto } from './dto/user-registry.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TokenResponseDto } from './dto/token-response.dto';
 import { JwtAuthGuard } from './jwt.guard';
+import { UserLoginDto } from './dto/user-login.dto';
 
 @ApiTags('Авторизация')
 @Controller('/api/v1/auth')
@@ -26,7 +28,7 @@ export class AuthController {
   @ApiResponse({ type: TokenResponseDto })
   @Post('signup')
   async signUp(@Body() userRegDto: UserRegistryDto) {
-    const isUserExist = await this.userService.isUserExist(userRegDto.email);
+    const isUserExist = await this.userService.isExist(userRegDto.email);
 
     if (isUserExist) {
       throw new ConflictException('User exist');
@@ -38,9 +40,20 @@ export class AuthController {
   }
 
   @ApiResponse({ type: TokenResponseDto })
-  @UseGuards(JwtAuthGuard)
   @Post('login')
-  async signIn(@Request() req) {
-    return await this.authService.signIn(req.user);
+  async signIn(@Body() userLoginDto: UserLoginDto) {
+    const user = await this.authService.validateUser(
+      userLoginDto.email,
+      userLoginDto.password,
+    );
+
+    return await this.authService.signIn(user);
+  }
+
+  @ApiResponse({ type: TokenResponseDto })
+  @UseGuards(JwtAuthGuard)
+  @Post('refresh')
+  async refresh(@Request() req) {
+    
   }
 }

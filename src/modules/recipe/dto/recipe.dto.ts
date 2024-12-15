@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RecipeIngredientUnitEntity } from '../entity/recipe-ingredient-unit.entity';
-import { RecipeStepEntity } from '../entity/recipe-step.entity';
+import { RecipeIngredientDto } from './recipte-ingredient.dto';
+import { UserDto } from '@/modules/user';
 
 export class RecipeDto {
   @ApiProperty()
@@ -15,17 +15,17 @@ export class RecipeDto {
   @ApiProperty()
   public description: string;
 
-  @ApiProperty({ type: RecipeIngredientUnitEntity, isArray: true })
-  public ingredients: RecipeIngredientUnitEntity[];
+  @ApiProperty({ type: RecipeIngredientDto, isArray: true })
+  public ingredients: RecipeIngredientDto[];
 
   @ApiProperty()
   public images: string[];
 
   @ApiProperty({ isArray: true })
-  public steps: RecipeStepEntity[];
+  public steps: string[];
 
   @ApiProperty()
-  public userId: string;
+  public user: UserDto;
 
   @ApiProperty()
   public isDeleted: boolean;

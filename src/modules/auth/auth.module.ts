@@ -7,12 +7,12 @@ import { TOKEN_LIFETIME } from '@/config';
 
 import { AuthController } from './auth.controller';
 import { jwtConstants } from './constants';
-import { JwtStrategy } from './jwt.strategy';
+import { AccessJwtStrategy } from './strategy/access-jwt.strategy';
 
 import { AuthService } from './auth.service';
 
 @Module({
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, AccessJwtStrategy],
   controllers: [AuthController],
   imports: [
     UserModule,

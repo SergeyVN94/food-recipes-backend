@@ -30,6 +30,6 @@ export class RecipesFilterDto {
 
   @ApiProperty({ description: 'Списки id ингредиентов', required: false })
   @IsOptional()
-  @Type(() =>IngredientsFilterDto)
+  @Type(() => IngredientsFilterDto)
   ingredients?: IngredientsFilterDto;
 }
