@@ -3,8 +3,8 @@ import makeSlug from 'slugify';
 import * as ingredientsData from './ingredients.json';
 import * as amountTypesData from './amount-types.json';
 
-import { RecipeIngredientEntity } from '../modules/recipe-ingredient/entity/recipe-ingredient.entity';
-import { AmountTypeEntity } from '../modules/recipe-ingredient/entity/amount-types.entity';
+import { IngredientEntity } from '../modules/ingredient/entity/ingredient.entity';
+import { AmountTypeEntity } from '../modules/ingredient/entity/amount-types.entity';
 
 const runSeed = async (dataSource: DataSource) => {
   const entityManager = dataSource.createEntityManager();
@@ -25,7 +25,7 @@ const runSeed = async (dataSource: DataSource) => {
     }, {});
 
   const ingredients = ingredientsData.map((i) => {
-    const item = new RecipeIngredientEntity();
+    const item = new IngredientEntity();
 
     item.name = i.name;
     item.slug = makeSlug(i.name, { trim: true, replacement: '_' });
@@ -41,7 +41,7 @@ const runSeed = async (dataSource: DataSource) => {
   });
 
   try {
-    await entityManager.save<RecipeIngredientEntity>(ingredients);
+    await entityManager.save<IngredientEntity>(ingredients);
   } catch (error) {
     console.error(error);
   }

@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { UserRole } from './types';
+import { UserDto } from './dto/user.dto';
 
 @Entity()
 export class UserEntity {
@@ -36,4 +37,16 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updateAt: string;
+
+  toDto(): UserDto {
+    return {
+      id: this.id,
+      userName: this.userName,
+      email: this.email,
+      role: this.role,
+      avatar: this.avatar,
+      createdAt: this.createdAt,
+      updateAt: this.updateAt,
+    };
+  }
 }

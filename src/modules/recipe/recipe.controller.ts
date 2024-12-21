@@ -24,7 +24,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeService } from './recipe.service';
-import { RecipeEntity } from './entity/recipe.entity';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import { JwtAuthGuard } from '../auth';
@@ -41,14 +40,14 @@ export class RecipeController {
   @ApiResponse({ type: RecipeDto, isArray: true })
   @Post('/search')
   @HttpCode(200)
-  async getRecipes(@Body() filter: RecipesFilterDto): Promise<RecipeEntity[]> {
+  async getRecipes(@Body() filter: RecipesFilterDto): Promise<RecipeDto[]> {
     return await this.recipeService.getRecipes(filter);
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })
   @ApiResponse({ type: RecipeDto })
   @Get(':slug')
-  async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeEntity> {
+  async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeDto> {
     const recipe = await this.recipeService.getRecipeBySlug(slug);
 
     if (!recipe) {

@@ -25,7 +25,4 @@ export class RecipeStepEntity {
 
   @CreateDateColumn()
   createdAt: string;
-
-  @UpdateDateColumn()
-  updateAt: string;
 }

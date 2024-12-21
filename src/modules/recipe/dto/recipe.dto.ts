@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { RecipeIngredientDto } from './recipte-ingredient.dto';
 import { UserDto } from '@/modules/user';
+import { RecipeStepDto } from './recipe-step.dto';
 
 export class RecipeDto {
   @ApiProperty()
@@ -22,7 +23,7 @@ export class RecipeDto {
   public images: string[];
 
   @ApiProperty({ isArray: true })
-  public steps: string[];
+  public steps: RecipeStepDto[];
 
   @ApiProperty()
   public user: UserDto;

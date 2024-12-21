@@ -19,25 +19,17 @@ export class UserService {
   }
 
   async findById(id: string) {
-    const foundUser = await this.userRepository.findOne({ where: { id } });
-
-    return foundUser ? omit((foundUser as UserDto), ['passHash', 'salt']) : null;
+    return (await this.userRepository.findOne({ where: { id } }))?.toDto();
   }
 
   async findByName(name: string) {
-    const foundUser = await this.userRepository.findOne({
+    return (await this.userRepository.findOne({
       where: { userName: name },
-    });
-
-    return foundUser ? omit((foundUser as UserDto), ['passHash', 'salt']) : null;
+    }))?.toDto();
   }
 
   async findByEmail(email: string) {
-    const foundUser = await this.userRepository.findOne({ where: { email } });
-
-    delete foundUser.passHash;
-
-    return foundUser ? omit(foundUser, ['passHash', 'salt']) : null;
+    return (await this.userRepository.findOne({ where: { email } }))?.toDto();
   }
 
   async create(user: {
@@ -50,14 +42,12 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
-  async getWithPassHash(email: string) {
+  async findByEmailFull(email: string) {
     return await this.userRepository.findOne({ where: { email } });
   }
 
   async isExist(email: string) {
-    const req = { where: { email } };
-
-    return (await this.userRepository.count(req)) > 0;
+    return (await this.userRepository.count({ where: { email } })) > 0;
   }
 
   async count() {

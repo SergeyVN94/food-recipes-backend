@@ -1,9 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as fs from 'fs';
 
 import { AppModule } from './modules/app';
 import { TypeormExceptionsFilter, HttpExceptionFilter } from './filters';
+import { Logger } from 'nestjs-pino';
 
 declare const module: any;
 
@@ -20,6 +22,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
   }));
+  app.useLogger(app.get(Logger));
 
   const config = new DocumentBuilder()
     .setTitle('Рецепты')
@@ -27,6 +30,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+  fs.writeFileSync('./swagger-spec.json', JSON.stringify(document));
   SwaggerModule.setup('swagger', app, document);
 
   await app.listen(8000);
@@ -36,4 +40,5 @@ async function bootstrap() {
     module.hot.dispose(() => app.close());
   }
 }
+
 bootstrap();

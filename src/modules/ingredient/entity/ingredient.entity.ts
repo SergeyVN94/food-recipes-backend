@@ -8,9 +8,10 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AmountTypeEntity } from './amount-types.entity';
+import { IngredientDto } from '../dto/ingredient.dto';
 
 @Entity()
-export class RecipeIngredientEntity {
+export class IngredientEntity {
   @PrimaryGeneratedColumn('increment', {
     type: 'integer',
   })
@@ -37,4 +38,16 @@ export class RecipeIngredientEntity {
 
   @UpdateDateColumn()
   updateAt: string;
+
+  toDto(): IngredientDto {
+    return {
+      id: this.id,
+      slug: this.slug,
+      name: this.name,
+      description: this.description,
+      amountTypes: this.amountTypes.map((amountType) => amountType.id),
+      createdAt: this.createdAt,
+      updateAt: this.updateAt,
+    };
+  }
 }

@@ -8,8 +8,9 @@ import {
 } from 'typeorm';
 
 import { RecipeEntity } from './recipe.entity';
-import { RecipeIngredientEntity } from '../../recipe-ingredient/entity/recipe-ingredient.entity';
-import { AmountTypeEntity } from '../../recipe-ingredient/entity/amount-types.entity';
+import { IngredientEntity } from '../../ingredient/entity/ingredient.entity';
+import { AmountTypeEntity } from '../../ingredient/entity/amount-types.entity';
+import { RecipeIngredientDto } from '../dto/recipte-ingredient.dto';
 
 @Entity()
 export class RecipeIngredientUnitEntity {
@@ -22,14 +23,30 @@ export class RecipeIngredientUnitEntity {
   @Column()
   count: number;
 
-  @ManyToOne(() => RecipeIngredientEntity)
-  @JoinColumn()
-  ingredient: RecipeIngredientEntity;
+  @ManyToOne(() => IngredientEntity)
+  @JoinColumn({ name: 'ingredientId' })
+  ingredient: IngredientEntity;
+
+  @Column({ nullable: false })
+  ingredientId: number;
 
   @ManyToOne(() => AmountTypeEntity)
-  @JoinColumn()
-  amountType: AmountTypeEntity; 
+  @JoinColumn({ name: 'amountTypeId' })
+  amountType: AmountTypeEntity;
+
+  @Column({ nullable: false })
+  amountTypeId: number;
 
   @CreateDateColumn()
   createdAt: string;
+
+  toDto(): RecipeIngredientDto {
+    return {
+      id: this.id,
+      count: this.count,
+      ingredientId: this.ingredientId,
+      amountTypeId: this.amountTypeId,
+      createdAt: this.createdAt,
+    };
+  }
 }

@@ -2,17 +2,17 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class RecipeIngredientDto {
   @ApiProperty()
+  public id: string;
+
+  @ApiProperty()
   public count: number;
 
   @ApiProperty()
-  public ingredientId: string;
+  public ingredientId: number;
 
   @ApiProperty()
-  public amountTypeId: string;
+  public amountTypeId: number;
 
   @ApiProperty()
   public createdAt: string;
-
-  @ApiProperty()
-  public updateAt: string;
 }

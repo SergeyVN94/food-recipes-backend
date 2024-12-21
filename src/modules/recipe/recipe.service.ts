@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Raw, Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import createSlug from 'slugify';
 import { isEmpty } from 'lodash';
 
@@ -8,8 +8,8 @@ import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
-import { AmountTypeEntity } from '../recipe-ingredient/entity/amount-types.entity';
-import { RecipeIngredientEntity } from '../recipe-ingredient/entity/recipe-ingredient.entity';
+import { AmountTypeEntity } from '../ingredient/entity/amount-types.entity';
+import { IngredientEntity } from '../ingredient/entity/ingredient.entity';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
@@ -28,7 +28,7 @@ export class RecipeService {
     private minioClientService: MinioClientService,
   ) {}
 
-  async getRecipes(filter: RecipesFilterDto = {}): Promise<RecipeEntity[]> {
+  async getRecipes(filter: RecipesFilterDto = {}): Promise<RecipeDto[]> {
     if (isEmpty(filter)) {
       return await this.recipeRepository.find({
         relations: {
@@ -101,47 +101,35 @@ export class RecipeService {
       .leftJoinAndSelect('recipe.ingredients', 'ingredients')
       .leftJoinAndSelect('recipe.steps', 'steps')
       .leftJoinAndSelect('recipe.user', 'user')
-      .leftJoinAndSelect('ingredients.ingredient', 'ingredient')
-      .leftJoinAndSelect('ingredients.amountType', 'amountType')
-      .where(`recipe.id IN (${query.getQuery()})`)
       .groupBy('recipe.id')
+      .where(`recipe.id IN (${query.getQuery()})`)
       .orderBy('recipe.createdAt', 'DESC');      
 
     const result =  await mainQuery.getMany();
     
-    result.forEach((recipe) => {
-      if (recipe.user) {
-        delete recipe.user.passHash;
-        delete recipe.user.salt;
-      }
-    });
-    
-    return result;
+    return result.map((recipe) => recipe.toDto());
   }
 
   async getRecipeBySlug(
     slug: RecipeEntity['slug'],
-  ): Promise<RecipeEntity> {
+  ): Promise<RecipeDto> {
     const recipe = await this.recipeRepository.findOne({
       where: { slug },
       relations: {
         steps: true,
-        ingredients: {
-          ingredient: true,
-          amountType: true,
-        },
+        ingredients: true,
         user: true,
       },
     });
 
-    return recipe;
+    return recipe.toDto();
   }
 
   async saveRecipe(
     dto: Omit<RecipeCreateDto, 'images'>,
     files: Express.Multer.File[],
     userId: UserEntity['id'],
-  ): Promise<RecipeEntity> {
+  ): Promise<RecipeDto> {
     const images = await Promise.all(
       files.map((file) => this.minioClientService.upload(file, 'recipes')),
     );
@@ -178,7 +166,7 @@ export class RecipeService {
       const amountType = new AmountTypeEntity();
       amountType.id = Number(amountTypeId);
 
-      const ingredient = new RecipeIngredientEntity();
+      const ingredient = new IngredientEntity();
       ingredient.id = Number(ingredientId);
 
       return {
@@ -217,6 +205,6 @@ export class RecipeService {
       title: dto.title,
     });
 
-    return recipe;
+    return recipe.toDto();
   }
 }
