@@ -13,7 +13,7 @@ import { IngredientEntity } from '../ingredient/entity/ingredient.entity';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { UserEntity } from '../user';
+import { UserDto, UserEntity, UserRole } from '../user';
 
 @Injectable()
 export class RecipeService {
@@ -28,9 +28,14 @@ export class RecipeService {
     private minioClientService: MinioClientService,
   ) {}
 
-  async getRecipes(filter: RecipesFilterDto = {}): Promise<RecipeDto[]> {
+  async getRecipes(filter: RecipesFilterDto = {}, user?: UserDto | null): Promise<RecipeDto[]> {
+    const isAdmin = user && user.role === UserRole.ADMIN;
+    const isDeleted = filter.isDeleted ?? false;
+    const whereIsDeleted = { isDeleted: Boolean(isAdmin && isDeleted) };
+
     if (isEmpty(filter)) {
       return await this.recipeRepository.find({
+        where: whereIsDeleted,
         relations: {
           steps: true,
           ingredients: {
@@ -103,6 +108,7 @@ export class RecipeService {
       .leftJoinAndSelect('recipe.user', 'user')
       .groupBy('recipe.id')
       .where(`recipe.id IN (${query.getQuery()})`)
+      .andWhere(whereIsDeleted)
       .orderBy('recipe.createdAt', 'DESC');      
 
     const result =  await mainQuery.getMany();
@@ -112,9 +118,13 @@ export class RecipeService {
 
   async getRecipeBySlug(
     slug: RecipeEntity['slug'],
+    user?: UserDto | null,
+    isDeleted = false,
   ): Promise<RecipeDto> {
+    const isAdmin = user && user.role === UserRole.ADMIN;
+
     const recipe = await this.recipeRepository.findOne({
-      where: { slug },
+      where: { slug, isDeleted: isAdmin && isDeleted },
       relations: {
         steps: true,
         ingredients: true,
@@ -206,5 +216,13 @@ export class RecipeService {
     });
 
     return recipe.toDto();
+  }
+
+  async markAsDeleted(id: RecipeEntity['id']): Promise<void> {
+    await this.recipeRepository.update({ id }, { isDeleted: true });
+  }
+
+  async deleteRecipe(id: RecipeEntity['id']): Promise<void> {
+    await this.recipeRepository.delete({ id });
   }
 }

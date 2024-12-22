@@ -40,8 +40,8 @@ export class RecipeController {
   @ApiResponse({ type: RecipeDto, isArray: true })
   @Post('/search')
   @HttpCode(200)
-  async getRecipes(@Body() filter: RecipesFilterDto): Promise<RecipeDto[]> {
-    return await this.recipeService.getRecipes(filter);
+  async getRecipes(@Body() filter: RecipesFilterDto, @Req() req): Promise<RecipeDto[]> {
+    return await this.recipeService.getRecipes(filter, req.user);
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })

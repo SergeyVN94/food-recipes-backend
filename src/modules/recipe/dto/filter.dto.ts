@@ -32,4 +32,8 @@ export class RecipesFilterDto {
   @IsOptional()
   @Type(() => IngredientsFilterDto)
   ingredients?: IngredientsFilterDto;
+
+  @ApiProperty({ description: 'Показать рецепты помеченные удаленными (только для админов!)', required: false })
+  @IsOptional()
+  isDeleted?: boolean;
 }
