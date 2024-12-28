@@ -20,7 +20,9 @@ deploy-pm2-job:
   environment: production
   dependencies:
     - build-job
-  script: 
+  script:
+    - whoami
+    - groups
     - mkdir -p /var/www/recipe/backend
     - rm -rf /var/www/recipe/backend/*
     - cp -r dist node_modules ecosystem.config.js /var/www/recipe/backend
