@@ -2,13 +2,10 @@ import {
   Body,
   ConflictException,
   Controller,
-  Get,
   Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
-
-import { UserService } from '@/modules/user';
 
 import { AuthService } from './auth.service';
 import { UserRegistryDto } from './dto/user-registry.dto';
@@ -16,9 +13,10 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TokenResponseDto } from './dto/token-response.dto';
 import { JwtAuthGuard } from './jwt.guard';
 import { UserLoginDto } from './dto/user-login.dto';
+import { UserService } from '../user/user.service';
 
 @ApiTags('Авторизация')
-@Controller('/api/v1/auth')
+@Controller('/auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -53,7 +51,5 @@ export class AuthController {
   @ApiResponse({ type: TokenResponseDto })
   @UseGuards(JwtAuthGuard)
   @Post('refresh')
-  async refresh(@Request() req) {
-    
-  }
+  async refresh(@Request() req) {}
 }

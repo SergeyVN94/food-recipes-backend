@@ -11,4 +11,4 @@ import { AmountTypeEntity } from './entity/amount-types.entity';
   controllers: [RecipeIngredientController],
   imports: [TypeOrmModule.forFeature([IngredientEntity, AmountTypeEntity])],
 })
-export class RecipeIngredientModule {}
+export class IngredientModule {}

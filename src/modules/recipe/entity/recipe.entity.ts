@@ -2,17 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-import { UserEntity } from '../../user';
 import { RecipeStepEntity } from './recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './recipe-ingredient-unit.entity';
 import { RecipeDto } from '../dto/recipe.dto';
+import { UserEntity } from '@/modules/user/user.entity';
 
 @Entity()
 export class RecipeEntity {

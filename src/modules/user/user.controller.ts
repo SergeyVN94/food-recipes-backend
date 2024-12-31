@@ -6,7 +6,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserDto } from './dto/user.dto';
 
 @ApiTags('Пользователи')
-@Controller('/api/v1/user')
+@Controller('/user')
 export class UserController {
   constructor(private userService: UserService) {}
 

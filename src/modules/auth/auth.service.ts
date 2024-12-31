@@ -2,8 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { UserDto, UserEntity, UserRole, UserService } from '@/modules/user';
 import { UserRegistryDto } from './dto/user-registry.dto';
+import { UserRole } from '../user/types';
+import { UserEntity } from '../user/user.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +26,7 @@ export class AuthService {
   async signUp(user: UserRegistryDto): Promise<UserEntity> {
     const salt = await bcrypt.genSalt();
     const passHash = await bcrypt.hash(user.password, salt);
-    
+
     return await this.userService.create({
       salt,
       passHash,
@@ -36,7 +38,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmailFull(email);
-    
+
     if (!user) {
       throw new UnauthorizedException('User or password incorrect');
     }

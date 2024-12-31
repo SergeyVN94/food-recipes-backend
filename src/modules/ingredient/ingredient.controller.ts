@@ -6,9 +6,8 @@ import { IngredientDto } from './dto/ingredient.dto';
 import { AmountTypeDto } from './dto/amount-type.dto';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-
 @ApiTags('Ингредиенты')
-@Controller('/api/v1/ingredients')
+@Controller('/ingredients')
 export class RecipeIngredientController {
   constructor(private readonly ingredientService: RecipeIngredientService) {}
 
@@ -29,9 +28,7 @@ export class RecipeIngredientController {
   @ApiParam({ name: 'id' })
   @ApiResponse({ type: IngredientDto })
   @Get(':id')
-  async getRecipeIngredientById(
-    @Param() id: string,
-  ): Promise<IngredientDto> {
+  async getRecipeIngredientById(@Param() id: string): Promise<IngredientDto> {
     return await this.ingredientService.getIngredientById(Number(id));
   }
 }

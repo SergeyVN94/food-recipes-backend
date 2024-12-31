@@ -13,7 +13,9 @@ import { IngredientEntity } from '../ingredient/entity/ingredient.entity';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { UserDto, UserEntity, UserRole } from '../user';
+import { UserDto } from '../user/dto/user.dto';
+import { UserRole } from '../user/types';
+import { UserEntity } from '../user/user.entity';
 
 @Injectable()
 export class RecipeService {
@@ -28,7 +30,10 @@ export class RecipeService {
     private minioClientService: MinioClientService,
   ) {}
 
-  async getRecipes(filter: RecipesFilterDto = {}, user?: UserDto | null): Promise<RecipeDto[]> {
+  async getRecipes(
+    filter: RecipesFilterDto = {},
+    user?: UserDto | null,
+  ): Promise<RecipeDto[]> {
     const isAdmin = user && user.role === UserRole.ADMIN;
     const isDeleted = filter.isDeleted ?? false;
     const whereIsDeleted = { isDeleted: Boolean(isAdmin && isDeleted) };
@@ -81,7 +86,6 @@ export class RecipeService {
         ?.map((i) => `'${i}'`)
         .join(',');
 
-
       if (excludesList) {
         const subQuery = this.recipeIngredientUnitRepository
           .createQueryBuilder('recipeIngredients')
@@ -89,18 +93,18 @@ export class RecipeService {
           .where(`recipeIngredients.ingredientId IN (${excludesList})`)
           .getQuery();
 
-        query = query.andWhere(
-          `"recipe"."id" NOT IN (${subQuery})`,
-        );
+        query = query.andWhere(`"recipe"."id" NOT IN (${subQuery})`);
       }
 
       if (includesList) {
         query = query
           .andWhere(`recipeIngredients.ingredientId IN (${includesList})`)
-          .andHaving(`count(recipeIngredients.recipeId)=${filter.ingredients.includes.length}`);
+          .andHaving(
+            `count(recipeIngredients.recipeId)=${filter.ingredients.includes.length}`,
+          );
       }
     }
-    
+
     const mainQuery = this.recipeRepository
       .createQueryBuilder('recipe')
       .leftJoinAndSelect('recipe.ingredients', 'ingredients')
@@ -109,10 +113,10 @@ export class RecipeService {
       .groupBy('recipe.id')
       .where(`recipe.id IN (${query.getQuery()})`)
       .andWhere(whereIsDeleted)
-      .orderBy('recipe.createdAt', 'DESC');      
+      .orderBy('recipe.createdAt', 'DESC');
 
-    const result =  await mainQuery.getMany();
-    
+    const result = await mainQuery.getMany();
+
     return result.map((recipe) => recipe.toDto());
   }
 
@@ -125,6 +129,25 @@ export class RecipeService {
 
     const recipe = await this.recipeRepository.findOne({
       where: { slug, isDeleted: isAdmin && isDeleted },
+      relations: {
+        steps: true,
+        ingredients: true,
+        user: true,
+      },
+    });
+
+    return recipe.toDto();
+  }
+
+  async getRecipeById(
+    id: RecipeEntity['id'],
+    user?: UserDto | null,
+    isDeleted = false,
+  ): Promise<RecipeDto> {
+    const isAdmin = user && user.role === UserRole.ADMIN;
+
+    const recipe = await this.recipeRepository.findOne({
+      where: { id, isDeleted: isAdmin && isDeleted },
       relations: {
         steps: true,
         ingredients: true,
@@ -171,7 +194,7 @@ export class RecipeService {
           `Invalid ingredient value at index ${index}`,
           HttpStatus.EXPECTATION_FAILED,
         );
-      }      
+      }
 
       const amountType = new AmountTypeEntity();
       amountType.id = Number(amountTypeId);
@@ -206,7 +229,7 @@ export class RecipeService {
     user.id = userId;
 
     const recipe = await this.recipeRepository.save({
-      user, 
+      user,
       slug,
       steps,
       ingredients,

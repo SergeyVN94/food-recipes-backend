@@ -21,8 +21,6 @@ deploy-pm2-job:
   dependencies:
     - build-job
   script:
-    - whoami
-    - groups
     - mkdir -p /var/www/recipe/backend
     - rm -rf /var/www/recipe/backend/*
     - cp -r dist node_modules ecosystem.config.js /var/www/recipe/backend
