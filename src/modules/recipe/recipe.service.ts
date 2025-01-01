@@ -65,10 +65,12 @@ export class RecipeService {
       query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
     }
 
+    if (filter.userId) {
+      query = query.andWhere(`recipe.userId = '${filter.userId}'`);
+    }
+
     if ('slugs' in filter && filter.slugs.length > 0) {
-      query = query.andWhere({
-        slug: In(filter.slugs),
-      });
+      query = query.andWhere(`recipe.slug IN (${filter.slugs.join(',')})`);
     }
 
     const isIngredientsExist =
@@ -86,7 +88,7 @@ export class RecipeService {
         ?.map((i) => `'${i}'`)
         .join(',');
 
-      if (excludesList) {
+      if (excludesList && excludesList.length > 0) {
         const subQuery = this.recipeIngredientUnitRepository
           .createQueryBuilder('recipeIngredients')
           .select('recipeId')
@@ -96,7 +98,7 @@ export class RecipeService {
         query = query.andWhere(`"recipe"."id" NOT IN (${subQuery})`);
       }
 
-      if (includesList) {
+      if (includesList && includesList.length > 0) {
         query = query
           .andWhere(`recipeIngredients.ingredientId IN (${includesList})`)
           .andHaving(
@@ -110,7 +112,6 @@ export class RecipeService {
       .leftJoinAndSelect('recipe.ingredients', 'ingredients')
       .leftJoinAndSelect('recipe.steps', 'steps')
       .leftJoinAndSelect('recipe.user', 'user')
-      .groupBy('recipe.id')
       .where(`recipe.id IN (${query.getQuery()})`)
       .andWhere(whereIsDeleted)
       .orderBy('recipe.createdAt', 'DESC');

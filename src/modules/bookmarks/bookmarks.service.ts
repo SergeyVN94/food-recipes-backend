@@ -7,7 +7,7 @@ import { BookmarkEntity } from './entity/bookmark.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import createSlug from 'slugify';
-import { BookmarkRecipeEntity } from './entity/bookmark-recipte.entity';
+import { BookmarkRecipeEntity } from './entity/bookmark-recipe.entity';
 
 @Injectable()
 export class BookmarksService {

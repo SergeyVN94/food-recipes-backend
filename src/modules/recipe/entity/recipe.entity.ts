@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -45,7 +46,11 @@ export class RecipeEntity {
   steps: RecipeStepEntity[];
 
   @ManyToOne(() => UserEntity)
+  @JoinColumn({ name: 'userId' })
   user: UserEntity;
+
+  @Column({ nullable: false })
+  userId: string;
 
   @Column({ default: false })
   isDeleted: boolean;
