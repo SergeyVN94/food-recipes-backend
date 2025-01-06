@@ -5,7 +5,7 @@ stages:
 build-image:
   stage: build
   script:
-    - docker build -t recipes-backend:latest .
+    - docker compose build
 
 deploy:
   stage: deploy

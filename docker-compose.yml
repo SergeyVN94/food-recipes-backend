@@ -1,13 +1,15 @@
-version: '3.5'
-
 services:
   backend:
     image: recipes-backend:latest
     container_name: recipes-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: postgres_admin
       POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
       POSTGRES_DB: recipes
+      POSTGRES_HOST: postgres
     ports:
       - '8000:8000'
     restart: unless-stopped
@@ -34,4 +36,6 @@ services:
 
 networks:
   app:
+    driver: bridge
+  host:
     driver: bridge
