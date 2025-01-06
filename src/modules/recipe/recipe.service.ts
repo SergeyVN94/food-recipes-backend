@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { DeleteResult, In, Repository } from 'typeorm';
 import createSlug from 'slugify';
 import { isEmpty } from 'lodash';
 
@@ -137,7 +137,7 @@ export class RecipeService {
       },
     });
 
-    return recipe.toDto();
+    return recipe?.toDto();
   }
 
   async getRecipeById(
@@ -156,7 +156,7 @@ export class RecipeService {
       },
     });
 
-    return recipe.toDto();
+    return recipe?.toDto();
   }
 
   async saveRecipe(
@@ -229,7 +229,7 @@ export class RecipeService {
     const user = new UserEntity();
     user.id = userId;
 
-    const recipe = await this.recipeRepository.save({
+    const { id } = await this.recipeRepository.save({
       user,
       slug,
       steps,
@@ -239,14 +239,14 @@ export class RecipeService {
       title: dto.title,
     });
 
-    return recipe.toDto();
+    return await this.getRecipeById(id, null, true);
   }
 
   async markAsDeleted(id: RecipeEntity['id']): Promise<void> {
     await this.recipeRepository.update({ id }, { isDeleted: true });
   }
 
-  async deleteRecipe(id: RecipeEntity['id']): Promise<void> {
-    await this.recipeRepository.delete({ id });
+  async deleteRecipe(id: RecipeEntity['id']): Promise<DeleteResult> {
+    return await this.recipeRepository.delete({ id });
   }
 }

@@ -1,0 +1,37 @@
+version: '3.5'
+
+services:
+  backend:
+    image: recipes-backend:latest
+    container_name: recipes-backend
+    environment:
+      POSTGRES_USER: postgres_admin
+      POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
+      POSTGRES_DB: recipes
+    ports:
+      - '8000:8000'
+    restart: unless-stopped
+    networks:
+      - host
+      - app
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17.2-alpine3.21
+    container_name: recipes-db
+    volumes:
+      - /var/postgresql/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres_admin
+      POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
+      POSTGRES_DB: recipes
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge

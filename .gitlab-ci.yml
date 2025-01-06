@@ -2,28 +2,12 @@ stages:
   - build
   - deploy
 
-build-job:
+build-image:
   stage: build
-  environment: production
-  artifacts:
-    paths:
-      - "dist"
-      - "node_modules"
-      - "ecosystem.config.js"
-    when: always
   script:
-    - npm ci
-    - npm run build
+    - docker build -t recipes-backend:latest .
 
-deploy-pm2-job:
+deploy:
   stage: deploy
-  environment: production
-  dependencies:
-    - build-job
   script:
-    - mkdir -p /var/www/recipe/backend
-    - rm -rf /var/www/recipe/backend/*
-    - cp -r dist node_modules ecosystem.config.js /var/www/recipe/backend
-    - cd /var/www/recipe/backend
-    - node dist/seeds
-    - pm2 startOrRestart ecosystem.config.js
+    - docker compose up -d

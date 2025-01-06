@@ -1,10 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class RecipeCreateDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  @MaxLength(150)
   public title: string;
 
   @ApiProperty()

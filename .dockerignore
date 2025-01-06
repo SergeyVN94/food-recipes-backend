@@ -1,0 +1,8 @@
+.git
+.env
+.env.local
+.vscode
+dist
+README.md
+swagger-spec.json
+node_modules

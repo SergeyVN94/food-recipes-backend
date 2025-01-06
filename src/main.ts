@@ -36,9 +36,17 @@ async function bootstrap() {
   fs.writeFileSync('./swagger-spec.json', JSON.stringify(document));
   SwaggerModule.setup('swagger', app, document);
 
-  await app.listen(8000);
+  await app.listen(
+    process.env.PORT ?? 8000,
+    process.env.HOST ?? '0.0.0.0',
+    () => {
+      console.log(`Server started on port ${process.env.PORT ?? 8000}`);
+    },
+  );
 
-  if (module.hot) {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!isProduction && module.hot) {
     module.hot.accept();
     module.hot.dispose(() => app.close());
   }
