@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:17.2-alpine3.21
+    container_name: recipes-db
+    volumes:
+      - /var/postgresql/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres_admin
+      POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
+      POSTGRES_DB: recipes
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:5432:5432'

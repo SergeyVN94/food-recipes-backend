@@ -14,8 +14,7 @@ services:
       - '8000:8000'
     restart: unless-stopped
     networks:
-      - host
-      - app
+      - backend
     depends_on:
       - postgres
 
@@ -28,14 +27,10 @@ services:
       POSTGRES_USER: postgres_admin
       POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
       POSTGRES_DB: recipes
-    ports:
-      - '5432:5432'
     restart: unless-stopped
     networks:
-      - app
+      - backend
 
 networks:
-  app:
-    driver: bridge
-  host:
+  backend:
     driver: bridge
