@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
       POSTGRES_DB: recipes
       POSTGRES_HOST: postgres
+      PORT: 8000
     ports:
       - ${PORT}:8000
     restart: unless-stopped
