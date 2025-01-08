@@ -4,14 +4,14 @@ import * as bcrypt from 'bcrypt';
 
 import { UserRegistryDto } from './dto/user-registry.dto';
 import { UserRole } from '../user/types';
-import { UserEntity } from '../user/user.entity';
 import { UserService } from '../user/user.service';
+import { UserDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private userService: UserService, private jwt: JwtService) {}
 
-  async signIn(user: UserEntity) {
+  async signIn(user: UserDto) {
     const payload = {
       email: user.email,
       sub: user.id,
@@ -23,7 +23,7 @@ export class AuthService {
     };
   }
 
-  async signUp(user: UserRegistryDto): Promise<UserEntity> {
+  async signUp(user: UserRegistryDto) {
     const salt = await bcrypt.genSalt();
     const passHash = await bcrypt.hash(user.password, salt);
 

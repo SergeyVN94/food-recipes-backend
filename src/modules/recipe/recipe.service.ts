@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, In, Repository } from 'typeorm';
 import createSlug from 'slugify';
@@ -8,8 +8,6 @@ import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
-import { AmountTypeEntity } from '../ingredient/entity/amount-types.entity';
-import { IngredientEntity } from '../ingredient/entity/ingredient.entity';
 import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
@@ -59,7 +57,7 @@ export class RecipeService {
       .createQueryBuilder('recipe')
       .select('recipe.id', 'id')
       .innerJoin('recipe.ingredients', 'recipeIngredients')
-      .groupBy('recipeIngredients.recipeId');
+      .groupBy('recipe.id');
 
     if (filter.q?.length > 0) {
       query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
@@ -160,58 +158,11 @@ export class RecipeService {
   }
 
   async saveRecipe(
-    dto: Omit<RecipeCreateDto, 'images'>,
-    files: Express.Multer.File[],
+    dto: RecipeCreateDto,
     userId: UserEntity['id'],
   ): Promise<RecipeDto> {
-    const images = await Promise.all(
-      files.map((file) => this.minioClientService.upload(file, 'recipes')),
-    );
-
-    const ingredientObjects = dto.ingredients.map((ingredientJSON, index) => {
-      let ingredientObj;
-
-      try {
-        ingredientObj = JSON.parse(ingredientJSON);
-      } catch (error) {
-        throw new HttpException(
-          `Invalid ingredient value at index ${index}`,
-          HttpStatus.EXPECTATION_FAILED,
-        );
-      }
-
-      const { ingredientId, amountTypeId, count } = ingredientObj;
-      const normalizedCount = parseInt(count, 10);
-
-      const isValidIngredientId =
-        typeof ingredientId === 'string' && ingredientId.length > 0;
-      const isValidAmountTypeId =
-        typeof amountTypeId === 'string' && amountTypeId.length > 0;
-      const isValidCount =
-        typeof normalizedCount === 'number' && normalizedCount > 0;
-
-      if (!isValidIngredientId || !isValidAmountTypeId || !isValidCount) {
-        throw new HttpException(
-          `Invalid ingredient value at index ${index}`,
-          HttpStatus.EXPECTATION_FAILED,
-        );
-      }
-
-      const amountType = new AmountTypeEntity();
-      amountType.id = Number(amountTypeId);
-
-      const ingredient = new IngredientEntity();
-      ingredient.id = Number(ingredientId);
-
-      return {
-        amountType,
-        ingredient,
-        count: normalizedCount,
-      };
-    });
-
     const ingredients = await this.recipeIngredientUnitRepository.save(
-      ingredientObjects,
+      dto.ingredients,
     );
 
     const slug = createSlug(dto.title, {
@@ -234,7 +185,7 @@ export class RecipeService {
       slug,
       steps,
       ingredients,
-      images: images.map((image) => image.path),
+      images: [],
       description: dto.description,
       title: dto.title,
     });

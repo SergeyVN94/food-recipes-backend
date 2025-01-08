@@ -71,23 +71,9 @@ export class RecipeController {
   @ApiResponse({ type: RecipeDto })
   @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FilesInterceptor('images', 3))
-  async saveRecipe(
-    @Body() body: RecipeCreateDto,
-    @UploadedFiles(
-      new ParseFilePipeBuilder()
-        .addMaxSizeValidator({ maxSize: 5e6 })
-        .addFileTypeValidator({ fileType: /\/(png|jpg|jpeg)$/ })
-        .build({
-          fileIsRequired: false,
-        }),
-    )
-    files: Express.Multer.File[] = [],
-    @Req() req,
-  ) {
+  async saveRecipe(@Body() body: RecipeCreateDto, @Req() req) {
     const newRecipe = await this.recipeService.saveRecipe(
       body,
-      files,
       req.user.userId,
     );
 

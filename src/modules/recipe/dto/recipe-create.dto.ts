@@ -7,17 +7,19 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
+import { RecipeIngredientCreateDto } from './recipe-ingredient-create.dto';
 
 export class RecipeCreateDto {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, maxLength: 150 })
   @IsNotEmpty()
   @IsString()
   @MaxLength(150)
   public title: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: true, maxLength: 500 })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(500)
   public description: string;
 
   @ApiProperty()
@@ -28,19 +30,12 @@ export class RecipeCreateDto {
 
   @ApiProperty()
   @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  public images: string[];
-
-  @ApiProperty()
-  @IsArray()
   @ArrayMinSize(1)
   @IsString({ each: true })
   public steps: string[];
 
-  @ApiProperty()
+  @ApiProperty({ type: RecipeIngredientCreateDto, isArray: true })
   @IsArray()
   @ArrayMinSize(1)
-  @IsString({ each: true })
-  public ingredients: string[];
+  public ingredients: RecipeIngredientCreateDto[];
 }

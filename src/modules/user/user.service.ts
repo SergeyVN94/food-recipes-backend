@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { omit }  from 'lodash';
 
 import { UserRole } from './types';
 import { UserEntity } from './user.entity';
-import { UserDto } from './dto/user.dto';
+import { BookmarksService } from '../bookmarks/bookmarks.service';
+import { defaultBookmarks } from './constants';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    private bookmarksService: BookmarksService,
   ) {}
 
   async findAll() {
@@ -23,9 +24,11 @@ export class UserService {
   }
 
   async findByName(name: string) {
-    return (await this.userRepository.findOne({
-      where: { userName: name },
-    }))?.toDto();
+    return (
+      await this.userRepository.findOne({
+        where: { userName: name },
+      })
+    )?.toDto();
   }
 
   async findByEmail(email: string) {
@@ -39,7 +42,20 @@ export class UserService {
     role: UserRole;
     salt: string;
   }) {
-    return await this.userRepository.save(user);
+    const { id } = await this.userRepository.save(user);
+
+    const newUser = (
+      await this.userRepository.findOne({ where: { id } })
+    ).toDto();
+
+    for (let i = 0; i < defaultBookmarks.length; i += 1) {
+      await this.bookmarksService.createBookmark(
+        newUser.id,
+        defaultBookmarks[i],
+      );
+    }
+
+    return newUser;
   }
 
   async findByEmailFull(email: string) {
