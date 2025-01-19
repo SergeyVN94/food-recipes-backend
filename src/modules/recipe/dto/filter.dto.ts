@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 class IngredientsFilterDto {
   @ApiProperty({ required: false })
@@ -46,5 +46,6 @@ export class RecipesFilterDto {
     required: false,
   })
   @IsOptional()
+  @IsBoolean()
   isDeleted?: boolean;
 }

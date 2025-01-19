@@ -18,7 +18,11 @@ export class RecipeIngredientUnitEntity {
   id!: string;
 
   @ManyToOne(() => RecipeEntity, (recipe) => recipe.ingredients)
+  @JoinColumn({ name: 'recipeId' })
   recipe: RecipeEntity;
+
+  @Column({ nullable: false })
+  recipeId: string;
 
   @Column()
   count: number;

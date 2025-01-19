@@ -53,6 +53,8 @@ export class RecipeService {
       });
     }
 
+    const queryParams: Record<string, any> = {};
+
     let query = this.recipeRepository
       .createQueryBuilder('recipe')
       .select('recipe.id', 'id')
@@ -60,49 +62,38 @@ export class RecipeService {
       .groupBy('recipe.id');
 
     if (filter.q?.length > 0) {
-      query = query.where(`LOWER(title) LIKE LOWER('%${filter.q}%')`);
+      query = query.where(`LOWER(title) LIKE LOWER('%:q%')`);
+      queryParams.q = filter.q;
     }
 
     if (filter.userId) {
-      query = query.andWhere(`recipe.userId = '${filter.userId}'`);
+      query = query.andWhere(`recipe.userId = :userId`);
+      queryParams.userId = filter.userId;
     }
 
-    if ('slugs' in filter && filter.slugs.length > 0) {
-      query = query.andWhere(`recipe.slug IN (${filter.slugs.join(',')})`);
+    if (filter.slugs?.length > 0) {
+      query = query.andWhere(`recipe.slug IN (:...slugs)`);
+      queryParams.slugs = filter.slugs.filter(Boolean);
     }
 
-    const isIngredientsExist =
-      'ingredients' in filter &&
-      ((Array.isArray(filter.ingredients.excludes) &&
-        filter.ingredients.excludes?.length > 0) ||
-        (Array.isArray(filter.ingredients.includes) &&
-          filter.ingredients.includes?.length > 0));
+    if (filter.ingredients?.excludes?.length > 0) {
+      const subQuery = this.recipeIngredientUnitRepository
+        .createQueryBuilder('recipeIngredients')
+        .select('recipeIngredients.recipeId')
+        .where(`recipeIngredients.ingredientId IN (:...excludesList)`)
+        .getQuery();
 
-    if (isIngredientsExist) {
-      const excludesList = filter.ingredients.excludes
-        ?.map((i) => `'${i}'`)
-        .join(',');
-      const includesList = filter.ingredients.includes
-        ?.map((i) => `'${i}'`)
-        .join(',');
+      query = query.andWhere(`recipe.id NOT IN (${subQuery})`);
+      queryParams.excludesList = filter.ingredients.excludes.filter(Boolean);
+    }
 
-      if (excludesList && excludesList.length > 0) {
-        const subQuery = this.recipeIngredientUnitRepository
-          .createQueryBuilder('recipeIngredients')
-          .select('recipeId')
-          .where(`recipeIngredients.ingredientId IN (${excludesList})`)
-          .getQuery();
+    if (filter.ingredients?.includes?.length > 0) {
+      query = query
+        .andWhere(`recipeIngredients.ingredientId IN (:...includesList)`)
+        .andHaving(`count(recipeIngredients.recipeId)=:includesCount`);
 
-        query = query.andWhere(`"recipe"."id" NOT IN (${subQuery})`);
-      }
-
-      if (includesList && includesList.length > 0) {
-        query = query
-          .andWhere(`recipeIngredients.ingredientId IN (${includesList})`)
-          .andHaving(
-            `count(recipeIngredients.recipeId)=${filter.ingredients.includes.length}`,
-          );
-      }
+      queryParams.includesList = filter.ingredients.includes.filter(Boolean);
+      queryParams.includesCount = filter.ingredients.includes.length;
     }
 
     const mainQuery = this.recipeRepository
@@ -112,7 +103,10 @@ export class RecipeService {
       .leftJoinAndSelect('recipe.user', 'user')
       .where(`recipe.id IN (${query.getQuery()})`)
       .andWhere(whereIsDeleted)
-      .orderBy('recipe.createdAt', 'DESC');
+      .orderBy('recipe.createdAt', 'DESC')
+      .setParameters(queryParams);
+
+    console.log(mainQuery.getQueryAndParameters());
 
     const result = await mainQuery.getMany();
 

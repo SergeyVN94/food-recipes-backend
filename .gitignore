@@ -1,8 +1,6 @@
 # compiled output
 /dist
 /node_modules
-/public/recipes/*
-/main_db.sqlite3
 
 # Logs
 logs
@@ -37,3 +35,4 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 .env.local
+swagger-spec.json

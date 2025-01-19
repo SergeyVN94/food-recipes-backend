@@ -25,22 +25,24 @@ export class RecipeIngredientService {
     };
 
     const query = (filter.q ?? '').trim().toLowerCase();
-    
+
     if (query.length > 0) {
       findOptions.where['name'] = Like(query);
-    }   
+    }
 
-    return (await this.recipeRepository.find(
-      findOptions,
-    )).map((ingredient) => ingredient.toDto());
+    return (await this.recipeRepository.find(findOptions)).map((ingredient) =>
+      ingredient.toDto(),
+    );
   }
 
   async getIngredientById(
     id: IngredientEntity['id'],
   ): Promise<IngredientDto | null> {
-    return (await this.recipeRepository.findOne({
-      where: { id },
-    }))?.toDto();
+    return (
+      await this.recipeRepository.findOne({
+        where: { id },
+      })
+    )?.toDto();
   }
 
   async getAmountTypes(): Promise<AmountTypeDto[]> {
