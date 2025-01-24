@@ -3,29 +3,28 @@ import {
   ArrayMinSize,
   ArrayMaxSize,
   IsArray,
-  IsNotEmpty,
   IsOptional,
   IsString,
   MaxLength,
 } from 'class-validator';
 import { RecipeIngredientCreateDto } from './recipe-ingredient-create.dto';
 
-export class RecipeCreateDto {
+export class RecipeUpdateDto {
   @ApiProperty({ type: String, required: true, maxLength: 150 })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(150, {
     message: 'TITLE_MAX_LENGTH',
   })
-  public title: string;
+  public title?: string;
 
   @ApiProperty({ type: String, required: true, maxLength: 500 })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(500, {
     message: 'DESCRIPTION_MAX_LENGTH',
   })
-  public description: string;
+  public description?: string;
 
   @ApiProperty()
   @IsOptional()
@@ -34,9 +33,10 @@ export class RecipeCreateDto {
   @ArrayMaxSize(50, {
     message: 'TAGS_MAX_LENGTH',
   })
-  public tags: string[];
+  public tags?: string[];
 
   @ApiProperty()
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   @MaxLength(3000, {
@@ -49,7 +49,7 @@ export class RecipeCreateDto {
   @ArrayMaxSize(50, {
     message: 'STEPS_MAX_LENGTH',
   })
-  public steps: string[];
+  public steps?: string[];
 
   @ApiProperty({ type: RecipeIngredientCreateDto, isArray: true })
   @IsArray()

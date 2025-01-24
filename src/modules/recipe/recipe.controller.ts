@@ -6,22 +6,19 @@ import {
   HttpCode,
   NotFoundException,
   Param,
-  ParseFilePipeBuilder,
+  Patch,
   Post,
-  Put,
   Req,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeService } from './recipe.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
 import { JwtAuthGuard } from '../auth/jwt.guard';
+import { RecipeUpdateDto } from './dto/recipe-update.dto';
 
 @ApiTags('Рецепты')
 @Controller('/recipes')
@@ -80,13 +77,21 @@ export class RecipeController {
     return newRecipe;
   }
 
-  @Put(':slug')
-  updateRecipe(@Body() body: RecipeDto, @Param('slug') slug: string) {
-    return JSON.stringify(body);
+  @ApiResponse({ type: RecipeDto })
+  @UseGuards(JwtAuthGuard)
+  @Patch(':slug')
+  async updateRecipe(
+    @Body() body: RecipeUpdateDto,
+    @Param('slug') slug: string,
+    @Req() req,
+  ) {
+    return await this.recipeService.updateRecipe(slug, body, req.user);
   }
 
+  @ApiResponse({ type: RecipeDto })
+  @UseGuards(JwtAuthGuard)
   @Delete(':slug')
-  deleteRecipe(@Param('slug') slug: string) {
-    return slug;
+  async deleteRecipe(@Param('slug') slug: string, @Req() req) {
+    return await this.recipeService.deleteRecipe(slug, req.user);
   }
 }

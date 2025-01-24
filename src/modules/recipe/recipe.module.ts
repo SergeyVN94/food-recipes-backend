@@ -9,6 +9,7 @@ import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeService } from './recipe.service';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
+import { BookmarksModule } from '../bookmarks/bookmarks.module';
 
 @Module({
   controllers: [RecipeController],
@@ -21,6 +22,7 @@ import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.enti
       RecipeIngredientUnitEntity,
     ]),
     IngredientModule,
+    BookmarksModule,
   ],
 })
 export class RecipeModule {}

@@ -17,11 +17,14 @@ export class RecipeIngredientUnitEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => RecipeEntity, (recipe) => recipe.ingredients)
+  @ManyToOne(() => RecipeEntity, (recipe) => recipe.ingredients, {
+    eager: true,
+    orphanedRowAction: 'delete',
+  })
   @JoinColumn({ name: 'recipeId' })
   recipe: RecipeEntity;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   recipeId: string;
 
   @Column()

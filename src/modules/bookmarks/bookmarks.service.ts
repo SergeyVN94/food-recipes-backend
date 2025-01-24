@@ -41,7 +41,7 @@ export class BookmarksService {
       })) > 0;
 
     if (isSlugExists) {
-      throw new ConflictException('Bookmark with this title already exists');
+      throw new ConflictException('BOOKMARK_WITH_THIS_TITLE_ALREADY_EXISTS');
     }
 
     const { id: bookmarkId } = await this.bookmarkRepository.save({
@@ -74,7 +74,7 @@ export class BookmarksService {
       })) > 0;
 
     if (isSlugExists) {
-      throw new ConflictException('Bookmark with this title already exists');
+      throw new ConflictException('BOOKMARK_WITH_THIS_TITLE_ALREADY_EXISTS');
     }
 
     return await this.bookmarkRepository.update(
@@ -92,7 +92,7 @@ export class BookmarksService {
     });
 
     if (!bookmark) {
-      throw new NotFoundException('Bookmark not found');
+      throw new NotFoundException();
     }
 
     await this.bookmarkRecipeRepository.delete({
@@ -128,7 +128,7 @@ export class BookmarksService {
     });
 
     if (!bookmark) {
-      throw new NotFoundException('Bookmark not found');
+      throw new NotFoundException();
     }
 
     await this.bookmarkRecipeRepository.delete({
@@ -153,5 +153,9 @@ export class BookmarksService {
 
   async removeRecipeFromBookmark(userId: string, recipeId: string) {
     return await this.bookmarkRecipeRepository.delete({ recipeId, userId });
+  }
+
+  async removeRecipeFromAllBookmarks(recipeId: string) {
+    return await this.bookmarkRecipeRepository.delete({ recipeId });
   }
 }

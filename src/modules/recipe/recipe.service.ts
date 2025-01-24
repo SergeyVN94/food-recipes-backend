@@ -1,4 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, In, Repository } from 'typeorm';
 import createSlug from 'slugify';
@@ -14,6 +20,9 @@ import { RecipeDto } from './dto/recipe.dto';
 import { UserDto } from '../user/dto/user.dto';
 import { UserRole } from '../user/types';
 import { UserEntity } from '../user/user.entity';
+import { BookmarkRecipeEntity } from '../bookmarks/entity/bookmark-recipe.entity';
+import { BookmarksService } from '../bookmarks/bookmarks.service';
+import { RecipeUpdateDto } from './dto/recipe-update.dto';
 
 @Injectable()
 export class RecipeService {
@@ -24,6 +33,8 @@ export class RecipeService {
     private recipeStepRepository: Repository<RecipeStepEntity>,
     @InjectRepository(RecipeIngredientUnitEntity)
     private recipeIngredientUnitRepository: Repository<RecipeIngredientUnitEntity>,
+    @Inject(BookmarksService)
+    private bookmarkService: BookmarksService,
     @Inject(MinioClientService)
     private minioClientService: MinioClientService,
   ) {}
@@ -62,8 +73,8 @@ export class RecipeService {
       .groupBy('recipe.id');
 
     if (filter.q?.length > 0) {
-      query = query.where(`LOWER(title) LIKE LOWER('%:q%')`);
-      queryParams.q = filter.q;
+      query = query.where(`LOWER(recipe.title) LIKE LOWER(:q)`);
+      queryParams.q = `%${filter.q}%`;
     }
 
     if (filter.userId) {
@@ -105,8 +116,6 @@ export class RecipeService {
       .andWhere(whereIsDeleted)
       .orderBy('recipe.createdAt', 'DESC')
       .setParameters(queryParams);
-
-    console.log(mainQuery.getQueryAndParameters());
 
     const result = await mainQuery.getMany();
 
@@ -155,14 +164,25 @@ export class RecipeService {
     dto: RecipeCreateDto,
     userId: UserEntity['id'],
   ): Promise<RecipeDto> {
-    const ingredients = await this.recipeIngredientUnitRepository.save(
-      dto.ingredients,
-    );
-
     const slug = createSlug(dto.title, {
       replacement: '_',
       trim: true,
     });
+
+    const isSlugExists =
+      (await this.recipeRepository.count({
+        where: {
+          slug,
+        },
+      })) > 0;
+
+    if (isSlugExists) {
+      throw new ConflictException('RECIPE_WITH_THIS_TITLE_ALREADY_EXISTS');
+    }
+
+    const ingredients = await this.recipeIngredientUnitRepository.save(
+      dto.ingredients,
+    );
 
     const steps = await this.recipeStepRepository.save(
       dto.steps.map((step, index) => ({
@@ -184,14 +204,118 @@ export class RecipeService {
       title: dto.title,
     });
 
+    console.log('id', id);
+
     return await this.getRecipeById(id, null, true);
   }
 
-  async markAsDeleted(id: RecipeEntity['id']): Promise<void> {
+  async updateRecipe(
+    slug: RecipeEntity['slug'],
+    dto: RecipeUpdateDto,
+    user: UserDto,
+  ) {
+    const recipe = await this.recipeRepository.findOne({
+      where: {
+        slug,
+      },
+      relations: {
+        steps: true,
+        ingredients: true,
+        user: true,
+      },
+    });
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (user.role !== UserRole.ADMIN && recipe.user.id !== user.id) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS'); // недостаточно прав
+    }
+
+    const nextSlug = dto.title
+      ? createSlug(dto.title ?? '', {
+          replacement: '_',
+          trim: true,
+        })
+      : recipe.slug;
+
+    if (recipe.slug !== nextSlug) {
+      const isSlugExists =
+        (await this.recipeRepository.count({
+          where: {
+            slug: nextSlug,
+          },
+        })) > 0;
+
+      if (isSlugExists) {
+        throw new ConflictException('RECIPE_WITH_THIS_TITLE_ALREADY_EXISTS');
+      }
+    }
+
+    recipe.slug = nextSlug;
+    recipe.title = dto.title;
+    recipe.description = dto.description;
+
+    if (dto.ingredients) {
+      await this.recipeIngredientUnitRepository.delete({ recipeId: recipe.id });
+
+      recipe.ingredients = await this.recipeIngredientUnitRepository.save(
+        dto.ingredients,
+      );
+    }
+
+    if (dto.steps) {
+      await this.recipeStepRepository.delete({ recipeId: recipe.id });
+
+      recipe.steps = await this.recipeStepRepository.save(
+        dto.steps.map((step, index) => ({
+          order: index,
+          content: step,
+        })),
+      );
+    }
+
+    const { id } = await this.recipeRepository.save(recipe);
+
+    return await this.getRecipeById(id);
+  }
+
+  async markAsDeleted(id: RecipeEntity['id'], user: UserDto): Promise<void> {
+    const recipe = await this.getRecipeById(id, user);
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (!user || user.role !== UserRole.ADMIN || recipe.user.id !== user.id) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS'); // недостаточно прав
+    }
+
     await this.recipeRepository.update({ id }, { isDeleted: true });
   }
 
-  async deleteRecipe(id: RecipeEntity['id']): Promise<DeleteResult> {
-    return await this.recipeRepository.delete({ id });
+  async deleteRecipe(
+    slug: RecipeEntity['slug'],
+    user: UserDto,
+  ): Promise<RecipeDto> {
+    const recipe = await this.getRecipeBySlug(slug);
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (user.role !== UserRole.ADMIN && recipe.user.id !== user.id) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS'); // недостаточно прав
+    }
+
+    await this.bookmarkService.removeRecipeFromAllBookmarks(recipe.id);
+    const result = await this.recipeRepository.delete({ slug });
+
+    if (!result.affected) {
+      throw new NotFoundException();
+    }
+
+    return recipe;
   }
 }

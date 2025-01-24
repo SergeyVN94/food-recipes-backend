@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -14,8 +15,15 @@ export class RecipeStepEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => RecipeEntity, (recipe) => recipe.steps)
+  @ManyToOne(() => RecipeEntity, (recipe) => recipe.steps, {
+    eager: true,
+    orphanedRowAction: 'delete',
+  })
+  @JoinColumn({ name: 'recipeId' })
   recipe: RecipeEntity;
+
+  @Column({ nullable: true })
+  recipeId: string;
 
   @Column()
   order: number;
