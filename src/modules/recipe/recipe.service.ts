@@ -310,6 +310,8 @@ export class RecipeService {
     }
 
     await this.bookmarkService.removeRecipeFromAllBookmarks(recipe.id);
+    await this.recipeStepRepository.delete({ recipeId: recipe.id });
+    await this.recipeIngredientUnitRepository.delete({ recipeId: recipe.id });
     const result = await this.recipeRepository.delete({ slug });
 
     if (!result.affected) {
