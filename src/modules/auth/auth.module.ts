@@ -3,12 +3,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { TOKEN_LIFETIME } from '@/config';
+import { UserModule } from '@/modules/user/user.module';
 
 import { AuthController } from './auth.controller';
 import { jwtConstants } from './constants';
 import { AccessJwtStrategy } from './strategy/access-jwt.strategy';
 import { AuthService } from './auth.service';
-import { UserModule } from '../user/user.module';
 
 @Module({
   providers: [AuthService, AccessJwtStrategy],

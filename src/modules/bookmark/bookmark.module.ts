@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BookmarksService } from './bookmarks.service';
-import { BookmarksController } from './bookmarks.controller';
+import { BookmarkService } from './bookmark.service';
+import { BookmarkController } from './bookmark.controller';
 import { BookmarkEntity } from './entity/bookmark.entity';
 import { BookmarkRecipeEntity } from './entity/bookmark-recipe.entity';
 
 @Module({
-  providers: [BookmarksService],
-  controllers: [BookmarksController],
-  exports: [BookmarksService],
+  providers: [BookmarkService],
+  controllers: [BookmarkController],
+  exports: [BookmarkService],
   imports: [TypeOrmModule.forFeature([BookmarkEntity, BookmarkRecipeEntity])],
 })
-export class BookmarksModule {}
+export class BookmarkModule {}

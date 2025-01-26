@@ -3,14 +3,15 @@ import {
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { BookmarkEntity } from './entity/bookmark.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import createSlug from 'slugify';
+
+import { BookmarkEntity } from './entity/bookmark.entity';
 import { BookmarkRecipeEntity } from './entity/bookmark-recipe.entity';
 
 @Injectable()
-export class BookmarksService {
+export class BookmarkService {
   constructor(
     @InjectRepository(BookmarkEntity)
     private bookmarkRepository: Repository<BookmarkEntity>,

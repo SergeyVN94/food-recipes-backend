@@ -7,10 +7,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { RecipeEntity } from './recipe.entity';
-import { IngredientEntity } from '../../ingredient/entity/ingredient.entity';
-import { AmountTypeEntity } from '../../ingredient/entity/amount-types.entity';
+import { IngredientEntity } from '@/modules/ingredient/entity/ingredient.entity';
+import { AmountTypeEntity } from '@/modules/ingredient/entity/amount-types.entity';
+
 import { RecipeIngredientDto } from '../dto/recipte-ingredient.dto';
+import { RecipeEntity } from './recipe.entity';
 
 @Entity()
 export class RecipeIngredientUnitEntity {

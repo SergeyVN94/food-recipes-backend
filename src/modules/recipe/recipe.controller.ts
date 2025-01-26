@@ -13,11 +13,12 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { JwtAuthGuard } from '@/modules/auth/jwt.guard';
+
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeService } from './recipe.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { JwtAuthGuard } from '../auth/jwt.guard';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
 
 @ApiTags('Рецепты')

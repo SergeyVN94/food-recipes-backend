@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { BookmarkModule } from '@/modules/bookmark/bookmark.module';
+
 import { IngredientModule } from '../ingredient';
 import { MinioClientModule } from '../minio-client';
-
 import { RecipeController } from './recipe.controller';
 import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeService } from './recipe.service';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
-import { BookmarksModule } from '../bookmarks/bookmarks.module';
 
 @Module({
   controllers: [RecipeController],
@@ -22,7 +22,7 @@ import { BookmarksModule } from '../bookmarks/bookmarks.module';
       RecipeIngredientUnitEntity,
     ]),
     IngredientModule,
-    BookmarksModule,
+    BookmarkModule,
   ],
 })
 export class RecipeModule {}

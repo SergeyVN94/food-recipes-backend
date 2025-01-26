@@ -5,10 +5,11 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-
-import { JwtAuthGuard } from '../auth/jwt.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { JwtAuthGuard } from '@/modules/auth/jwt.guard';
+
+import { UserService } from './user.service';
 import { UserDto } from './dto/user.dto';
 
 @ApiTags('Пользователи')

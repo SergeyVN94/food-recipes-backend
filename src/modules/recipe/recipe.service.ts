@@ -1,27 +1,24 @@
 import {
   ConflictException,
   ForbiddenException,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import createSlug from 'slugify';
-import { isEmpty } from 'lodash';
+
+import { UserDto } from '@/modules/user/dto/user.dto';
+import { UserRole } from '@/modules/user/types';
+import { UserEntity } from '@/modules/user/user.entity';
+import { BookmarkService } from '@/modules/bookmark/bookmark.service';
 
 import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
-import { MinioClientService } from '../minio-client/minio-client.service';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeDto } from './dto/recipe.dto';
-import { UserDto } from '../user/dto/user.dto';
-import { UserRole } from '../user/types';
-import { UserEntity } from '../user/user.entity';
-import { BookmarkRecipeEntity } from '../bookmarks/entity/bookmark-recipe.entity';
-import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
 
 @Injectable()
@@ -33,10 +30,7 @@ export class RecipeService {
     private recipeStepRepository: Repository<RecipeStepEntity>,
     @InjectRepository(RecipeIngredientUnitEntity)
     private recipeIngredientUnitRepository: Repository<RecipeIngredientUnitEntity>,
-    @Inject(BookmarksService)
-    private bookmarkService: BookmarksService,
-    @Inject(MinioClientService)
-    private minioClientService: MinioClientService,
+    private bookmarkService: BookmarkService,
   ) {}
 
   async getRecipes(
@@ -47,7 +41,7 @@ export class RecipeService {
     const isDeleted = filter.isDeleted ?? false;
     const whereIsDeleted = { isDeleted: Boolean(isAdmin && isDeleted) };
 
-    if (isEmpty(filter)) {
+    if (Object.values(filter).length === 0) {
       return await this.recipeRepository.find({
         where: whereIsDeleted,
         relations: {
@@ -203,8 +197,6 @@ export class RecipeService {
       description: dto.description,
       title: dto.title,
     });
-
-    console.log('id', id);
 
     return await this.getRecipeById(id, null, true);
   }

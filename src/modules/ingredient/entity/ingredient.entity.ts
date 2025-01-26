@@ -7,8 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { AmountTypeEntity } from './amount-types.entity';
+
 import { IngredientDto } from '../dto/ingredient.dto';
+import { AmountTypeEntity } from './amount-types.entity';
 
 @Entity()
 export class IngredientEntity {

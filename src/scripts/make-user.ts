@@ -1,58 +1,78 @@
 import { DataSource } from 'typeorm';
-import * as args from 'args';
 import * as bcrypt from 'bcrypt';
+import * as inquirer from '@inquirer/prompts';
 
 import { UserEntity } from '@/modules/user/user.entity';
 import { UserRole } from '@/modules/user/types';
 import dataSourceOptions from '@/config/data-source-options';
 
-args
-  .option('email', 'User email')
-  .option('name', 'User name')
-  .option('password', 'User password')
-  .option('role', 'User role', UserRole.USER);
-
 const main = async () => {
-  const flags = args.parse(process.argv);
+  const name = await inquirer.input({
+    message: 'User name:',
+    required: true,
+  });
 
-  if (!flags.email) {
-    throw new Error('Missing required flag: --email');
-  }
+  const email = await inquirer.input({
+    message: 'User email:',
+    required: true,
+  });
 
-  if (!flags.name) {
-    throw new Error('Missing required flag: --name');
-  } 
+  const password = await inquirer.password({
+    message: 'User password:',
+    mask: '*',
+  });
 
-  if (!flags.password) {
-    throw new Error('Missing required flag: --password');
-  }
+  const role = await inquirer.select({
+    message: 'User role:',
+    choices: [
+      { name: 'User', value: UserRole.USER },
+      { name: 'Admin', value: UserRole.ADMIN },
+    ],
+  });
 
-  const dataSource = new DataSource(dataSourceOptions);
+  console.log(`Creating user ${name} with email ${email} and role ${role}`);
+
+  const dataSource = new DataSource({
+    ...dataSourceOptions,
+    entities: [__dirname + '/../**/user.entity{.ts,.js}'],
+  });
   await dataSource.initialize();
 
   const entityManager = dataSource.createEntityManager();
 
-  const isUserExist = await entityManager.existsBy(UserEntity, { email: flags.email });
+  const isUserEmailExist = await entityManager.existsBy(UserEntity, {
+    email,
+  });
 
-  if (isUserExist) {
-    throw new Error('User exist');
+  if (isUserEmailExist) {
+    throw new Error('User email already exist');
+  }
+
+  const isUserNameExist = await entityManager.existsBy(UserEntity, {
+    userName: name,
+  });
+
+  if (isUserNameExist) {
+    throw new Error('User name already exist');
   }
 
   const salt = await bcrypt.genSalt();
-  const passHash = await bcrypt.hash(flags.password, salt);
+  const passHash = await bcrypt.hash(password, salt);
   const user = new UserEntity();
 
-  user.email = flags.email;
-  user.userName = flags.name;
+  user.email = email;
+  user.userName = name;
   user.passHash = passHash;
-  user.role = flags.role;
+  user.role = role;
   user.salt = salt;
 
-  await entityManager.save(user);
+  const { id } = await entityManager.save(user);
+  const createdUser = (
+    await entityManager.findOneBy(UserEntity, { id })
+  ).toDto();
   await dataSource.destroy();
-  
-  console.log('User created');
+
+  console.log(`User created: ${JSON.stringify(createdUser, null, 2)}`);
 };
 
 main();
-

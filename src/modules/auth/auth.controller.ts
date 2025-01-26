@@ -6,14 +6,14 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { UserService } from '@/modules/user/user.service';
 import { AuthService } from './auth.service';
 import { UserRegistryDto } from './dto/user-registry.dto';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TokenResponseDto } from './dto/token-response.dto';
 import { JwtAuthGuard } from './jwt.guard';
 import { UserLoginDto } from './dto/user-login.dto';
-import { UserService } from '../user/user.service';
 
 @ApiTags('Авторизация')
 @Controller('/auth')

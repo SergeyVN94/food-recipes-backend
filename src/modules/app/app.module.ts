@@ -4,11 +4,11 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 
 import { RecipeModule } from '@/modules/recipe';
+import { AuthModule } from '@/modules/auth/auth.module';
 import dataSourceOptions from '@/config/data-source-options';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [

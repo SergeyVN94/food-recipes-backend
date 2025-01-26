@@ -7,11 +7,12 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
-import { BookmarkEntity } from './bookmark.entity';
+
 import { UserEntity } from '@/modules/user/user.entity';
+
 import { BookmarkRecipeDto } from '../dto/bookmark-recipe.dto';
+import { BookmarkEntity } from './bookmark.entity';
 
 @Entity()
 export class BookmarkRecipeEntity {

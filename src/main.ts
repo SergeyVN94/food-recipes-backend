@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { Logger } from 'nestjs-pino';
 import * as fs from 'fs';
 
-import { TypeormExceptionsFilter, HttpExceptionFilter } from './filters';
-import { Logger } from 'nestjs-pino';
-import { AppModule } from './modules/app/app.module';
+import { TypeormExceptionsFilter, HttpExceptionFilter } from '@/filters';
+import { AppModule } from '@/modules/app/app.module';
 
 declare const module: any;
 

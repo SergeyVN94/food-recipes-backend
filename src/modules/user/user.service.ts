@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { BookmarkService } from '@/modules/bookmark/bookmark.service';
+
 import { UserRole } from './types';
 import { UserEntity } from './user.entity';
-import { BookmarksService } from '../bookmarks/bookmarks.service';
 import { defaultBookmarks } from './constants';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private bookmarksService: BookmarksService,
+    private BookmarkService: BookmarkService,
   ) {}
 
   async findAll() {
@@ -49,7 +50,7 @@ export class UserService {
     ).toDto();
 
     for (let i = 0; i < defaultBookmarks.length; i += 1) {
-      await this.bookmarksService.createBookmark(
+      await this.BookmarkService.createBookmark(
         newUser.id,
         defaultBookmarks[i],
       );
