@@ -4,12 +4,12 @@ import { UserRole } from '../types';
 export class UserDto {
   @ApiProperty()
   id: string;
-  
+
   @ApiProperty()
   userName: string;
 
-  @ApiProperty()
-  email: string;
+  @ApiProperty({ required: false, description: 'Только для своего профиля' })
+  email?: string;
 
   @ApiProperty({
     enum: UserRole,
