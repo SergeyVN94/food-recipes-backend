@@ -36,13 +36,6 @@ export class BookmarkController {
     return await this.BookmarkService.getBookmarks(req.user.userId);
   }
 
-  @ApiResponse({ type: BookmarkDto, isArray: true })
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  async getBookmarks(@Req() req) {
-    return await this.BookmarkService.getBookmarks(req.user.userId);
-  }
-
   @ApiResponse({ type: BookmarkDto })
   @Post()
   @UseGuards(JwtAuthGuard)
