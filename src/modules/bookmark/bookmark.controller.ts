@@ -30,6 +30,13 @@ export class BookmarkController {
   }
 
   @ApiResponse({ type: BookmarkDto, isArray: true })
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getSelfBookmarks(@Req() req) {
+    return await this.BookmarkService.getBookmarks(req.user.userId);
+  }
+
+  @ApiResponse({ type: BookmarkDto, isArray: true })
   @UseGuards(JwtAuthGuard)
   @Get()
   async getBookmarks(@Req() req) {
@@ -72,6 +79,13 @@ export class BookmarkController {
   @Get('/recipes/user/:userId')
   async getRecipesInBookmarks(@Param('userId') userId: string) {
     return await this.BookmarkService.getRecipesInBookmarks(userId);
+  }
+
+  @ApiResponse({ type: BookmarkRecipeDto, isArray: true })
+  @Get('/recipes')
+  @UseGuards(JwtAuthGuard)
+  async getSelfRecipesInBookmarks(@Req() req) {
+    return await this.BookmarkService.getRecipesInBookmarks(req.user.userId);
   }
 
   @Get(':bookmarkId/recipes/:recipeId')
