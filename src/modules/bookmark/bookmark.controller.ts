@@ -24,16 +24,16 @@ export class BookmarkController {
   constructor(private readonly BookmarkService: BookmarkService) {}
 
   @ApiResponse({ type: BookmarkDto, isArray: true })
-  @Get('/user/:userId')
-  async getUserBookmarks(@Param('id') userId: string) {
-    return await this.BookmarkService.getBookmarks(userId);
-  }
-
-  @ApiResponse({ type: BookmarkDto, isArray: true })
   @Get()
   @UseGuards(JwtAuthGuard)
   async getSelfBookmarks(@Req() req) {
     return await this.BookmarkService.getBookmarks(req.user.userId);
+  }
+
+  @ApiResponse({ type: BookmarkDto, isArray: true })
+  @Get('/user/:userId')
+  async getUserBookmarks(@Param('userId') userId: string) {
+    return await this.BookmarkService.getBookmarks(userId);
   }
 
   @ApiResponse({ type: BookmarkDto })
