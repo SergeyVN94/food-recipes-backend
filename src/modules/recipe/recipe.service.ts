@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import createSlug from 'slugify';
 import { Repository } from 'typeorm';
@@ -26,6 +26,7 @@ export class RecipeService {
     private recipeStepRepository: Repository<RecipeStepEntity>,
     @InjectRepository(RecipeIngredientUnitEntity)
     private recipeIngredientUnitRepository: Repository<RecipeIngredientUnitEntity>,
+    @Inject(forwardRef(() => BookmarkService))
     private bookmarkService: BookmarkService,
   ) {}
 

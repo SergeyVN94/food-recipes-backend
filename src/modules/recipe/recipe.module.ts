@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { BookmarkModule } from '@/modules/bookmark/bookmark.module';
@@ -18,7 +18,7 @@ import { RecipeService } from './recipe.service';
     MinioClientModule,
     TypeOrmModule.forFeature([RecipeEntity, RecipeStepEntity, RecipeIngredientUnitEntity]),
     IngredientModule,
-    BookmarkModule,
+    forwardRef(() => BookmarkModule),
   ],
 })
 export class RecipeModule {}
