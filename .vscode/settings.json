@@ -24,5 +24,6 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "editor.quickSuggestions": {
     "strings": true
-  }
+  },
+  "editor.autoClosingQuotes": "always",
 }
