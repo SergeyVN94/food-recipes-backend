@@ -1,12 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
 import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
+import { UserRole } from '@/modules/user/types';
 
 import { DECORATOR_KEY_IS_OPTIONAL } from '../decorators/optional.decorator';
 import { DECORATOR_KEY_IS_PUBLIC } from '../decorators/public.decorator';
+import { DECORATOR_KEY_ACCESS_ROLES } from '../decorators/roles.decorator';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -31,8 +33,10 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    let payload: UserAuthDto = null;
+
     try {
-      const payload: UserAuthDto = this.jwtService.verify(token, {
+      payload = this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
       });
 
@@ -41,6 +45,15 @@ export class JwtAuthGuard implements CanActivate {
       if (!isOptional) {
         throw new UnauthorizedException();
       }
+    }
+
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(DECORATOR_KEY_ACCESS_ROLES, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (payload && requiredRoles && !requiredRoles.includes(payload.role)) {
+      throw new ForbiddenException();
     }
 
     return true;

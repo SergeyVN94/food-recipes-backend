@@ -9,7 +9,6 @@ import { HttpExceptionFilter, TypeormExceptionsFilter } from '@/filters';
 import { AppModule } from '@/modules/app/app.module';
 
 import { JwtAuthGuard } from './modules/auth/guards/jwt.guard';
-import { RolesGuard } from './modules/auth/guards/roles.guard';
 
 declare const module: any;
 
@@ -34,13 +33,13 @@ async function bootstrap() {
   });
   const reflector = app.get(Reflector);
   const jwtService = app.get(JwtService);
-  const logger = app.get(Logger);
+  // const logger = app.get(Logger);
 
   app.useGlobalPipes(validationPipe);
   app.useGlobalFilters(new TypeormExceptionsFilter());
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector), new RolesGuard(reflector));
-  app.useLogger(logger);
+  app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector));
+  // app.useLogger(logger);
   app.setGlobalPrefix('/api/v1');
 
   const config = new DocumentBuilder().setTitle('Рецепты').setDescription('Апи для сайта рецептов').setVersion('1.0').build();
