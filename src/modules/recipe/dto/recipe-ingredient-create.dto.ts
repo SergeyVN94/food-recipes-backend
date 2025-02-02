@@ -3,10 +3,7 @@ import { IsNumber, Min } from 'class-validator';
 
 export class RecipeIngredientCreateDto {
   @ApiProperty()
-  @IsNumber(
-    { allowNaN: false, allowInfinity: false },
-    { message: 'COUNT_NOT_NUMBER' },
-  )
+  @IsNumber({ allowNaN: false, allowInfinity: false }, { message: 'COUNT_NOT_NUMBER' })
   public count: number;
 
   @ApiProperty()

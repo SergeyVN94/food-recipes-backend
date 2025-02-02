@@ -1,19 +1,10 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { UserEntity } from '@/modules/user/user.entity';
 
 import { RecipeDto } from '../dto/recipe.dto';
-import { RecipeStepEntity } from './recipe-step.entity';
 import { RecipeIngredientUnitEntity } from './recipe-ingredient-unit.entity';
+import { RecipeStepEntity } from './recipe-step.entity';
 
 @Entity()
 export class RecipeEntity {
@@ -32,14 +23,14 @@ export class RecipeEntity {
   @Column('simple-array')
   images: string[];
 
-  @OneToMany(() => RecipeIngredientUnitEntity, (unit) => unit.recipe, {
+  @OneToMany(() => RecipeIngredientUnitEntity, unit => unit.recipe, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     cascade: true,
   })
   ingredients: RecipeIngredientUnitEntity[];
 
-  @OneToMany(() => RecipeStepEntity, (step) => step.recipe, {
+  @OneToMany(() => RecipeStepEntity, step => step.recipe, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
     cascade: true,
@@ -68,7 +59,7 @@ export class RecipeEntity {
       title: this.title,
       slug: this.slug,
       description: this.description,
-      ingredients: this.ingredients.map((ingredient) => ingredient.toDto()),
+      ingredients: this.ingredients.map(ingredient => ingredient.toDto()),
       images: this.images,
       steps: this.steps,
       user: this.user.toDto(),

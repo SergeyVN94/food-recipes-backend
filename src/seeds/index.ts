@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 
 import dataSourceOptions from '@/config/data-source-options';
+
 import runSeedAmountTypes from './amount-types-seed';
 import runSeedIngredients from './ingredients-seed';
 

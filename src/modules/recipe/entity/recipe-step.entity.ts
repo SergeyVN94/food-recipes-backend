@@ -1,12 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { RecipeEntity } from './recipe.entity';
 
@@ -15,7 +7,7 @@ export class RecipeStepEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => RecipeEntity, (recipe) => recipe.steps, {
+  @ManyToOne(() => RecipeEntity, recipe => recipe.steps, {
     eager: true,
     orphanedRowAction: 'delete',
   })

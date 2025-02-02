@@ -1,13 +1,7 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { UserRole } from './types';
 import { UserDto } from './dto/user.dto';
+import { UserRole } from './types';
 
 @Entity()
 export class UserEntity {
@@ -19,6 +13,9 @@ export class UserEntity {
 
   @Column({ unique: true })
   email: string;
+
+  @Column({ default: false })
+  isEmailVerified: boolean;
 
   @Column()
   passHash: string;
@@ -45,6 +42,7 @@ export class UserEntity {
       email: this.email,
       role: this.role,
       avatar: this.avatar,
+      isEmailVerified: this.isEmailVerified,
       createdAt: this.createdAt,
       updateAt: this.updateAt,
     };

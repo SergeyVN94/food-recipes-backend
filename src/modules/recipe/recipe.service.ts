@@ -1,25 +1,21 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import createSlug from 'slugify';
+import { Repository } from 'typeorm';
 
+import { BookmarkService } from '@/modules/bookmark/bookmark.service';
+import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
 import { UserDto } from '@/modules/user/dto/user.dto';
 import { UserRole } from '@/modules/user/types';
 import { UserEntity } from '@/modules/user/user.entity';
-import { BookmarkService } from '@/modules/bookmark/bookmark.service';
 
-import { RecipeEntity } from './entity/recipe.entity';
-import { RecipeCreateDto } from './dto/recipe-create.dto';
-import { RecipeStepEntity } from './entity/recipe-step.entity';
-import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
 import { RecipesFilterDto } from './dto/filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
+import { RecipeDto } from './dto/recipe.dto';
+import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
+import { RecipeStepEntity } from './entity/recipe-step.entity';
+import { RecipeEntity } from './entity/recipe.entity';
 
 @Injectable()
 export class RecipeService {
@@ -33,10 +29,7 @@ export class RecipeService {
     private bookmarkService: BookmarkService,
   ) {}
 
-  async getRecipes(
-    filter: RecipesFilterDto = {},
-    user?: UserDto | null,
-  ): Promise<RecipeDto[]> {
+  async getRecipes(filter: RecipesFilterDto = {}, user?: UserAuthDto | null): Promise<RecipeDto[]> {
     const isAdmin = user && user.role === UserRole.ADMIN;
     const isDeleted = filter.isDeleted ?? false;
     const whereIsDeleted = { isDeleted: Boolean(isAdmin && isDeleted) };
@@ -113,14 +106,10 @@ export class RecipeService {
 
     const result = await mainQuery.getMany();
 
-    return result.map((recipe) => recipe.toDto());
+    return result.map(recipe => recipe.toDto());
   }
 
-  async getRecipeBySlug(
-    slug: RecipeEntity['slug'],
-    user?: UserDto | null,
-    isDeleted = false,
-  ): Promise<RecipeDto> {
+  async getRecipeBySlug(slug: RecipeEntity['slug'], user?: UserDto | null, isDeleted = false): Promise<RecipeDto> {
     const isAdmin = user && user.role === UserRole.ADMIN;
 
     const recipe = await this.recipeRepository.findOne({
@@ -135,11 +124,7 @@ export class RecipeService {
     return recipe?.toDto();
   }
 
-  async getRecipeById(
-    id: RecipeEntity['id'],
-    user?: UserDto | null,
-    isDeleted = false,
-  ): Promise<RecipeDto> {
+  async getRecipeById(id: RecipeEntity['id'], user?: UserDto | null, isDeleted = false): Promise<RecipeDto> {
     const isAdmin = user && user.role === UserRole.ADMIN;
 
     const recipe = await this.recipeRepository.findOne({
@@ -154,10 +139,7 @@ export class RecipeService {
     return recipe?.toDto();
   }
 
-  async saveRecipe(
-    dto: RecipeCreateDto,
-    userId: UserEntity['id'],
-  ): Promise<RecipeDto> {
+  async saveRecipe(dto: RecipeCreateDto, userId: UserEntity['id']): Promise<RecipeDto> {
     const slug = createSlug(dto.title, {
       replacement: '_',
       trim: true,
@@ -174,9 +156,7 @@ export class RecipeService {
       throw new ConflictException('RECIPE_WITH_THIS_TITLE_ALREADY_EXISTS');
     }
 
-    const ingredients = await this.recipeIngredientUnitRepository.save(
-      dto.ingredients,
-    );
+    const ingredients = await this.recipeIngredientUnitRepository.save(dto.ingredients);
 
     const steps = await this.recipeStepRepository.save(
       dto.steps.map((step, index) => ({
@@ -201,11 +181,7 @@ export class RecipeService {
     return await this.getRecipeById(id, null, true);
   }
 
-  async updateRecipe(
-    slug: RecipeEntity['slug'],
-    dto: RecipeUpdateDto,
-    user: UserDto,
-  ) {
+  async updateRecipe(slug: RecipeEntity['slug'], dto: RecipeUpdateDto, user: UserAuthDto) {
     const recipe = await this.recipeRepository.findOne({
       where: {
         slug,
@@ -252,9 +228,7 @@ export class RecipeService {
     if (dto.ingredients) {
       await this.recipeIngredientUnitRepository.delete({ recipeId: recipe.id });
 
-      recipe.ingredients = await this.recipeIngredientUnitRepository.save(
-        dto.ingredients,
-      );
+      recipe.ingredients = await this.recipeIngredientUnitRepository.save(dto.ingredients);
     }
 
     if (dto.steps) {
@@ -287,10 +261,7 @@ export class RecipeService {
     await this.recipeRepository.update({ id }, { isDeleted: true });
   }
 
-  async deleteRecipe(
-    slug: RecipeEntity['slug'],
-    user: UserDto,
-  ): Promise<RecipeDto> {
+  async deleteRecipe(slug: RecipeEntity['slug'], user: UserAuthDto): Promise<RecipeDto> {
     const recipe = await this.getRecipeBySlug(slug);
 
     if (!recipe) {

@@ -1,14 +1,10 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import createSlug from 'slugify';
+import { Repository } from 'typeorm';
 
-import { BookmarkEntity } from './entity/bookmark.entity';
 import { BookmarkRecipeEntity } from './entity/bookmark-recipe.entity';
+import { BookmarkEntity } from './entity/bookmark.entity';
 
 @Injectable()
 export class BookmarkService {
@@ -24,7 +20,7 @@ export class BookmarkService {
       await this.bookmarkRepository.find({
         where: { userId },
       })
-    ).map((bookmark) => bookmark.toDto());
+    ).map(bookmark => bookmark.toDto());
   }
 
   async createBookmark(userId: string, title: string) {
@@ -113,14 +109,10 @@ export class BookmarkService {
       },
     });
 
-    return bookmarksRecipes.map((item) => item.toDto());
+    return bookmarksRecipes.map(item => item.toDto());
   }
 
-  async addRecipeToBookmark(
-    userId: string,
-    recipeId: string,
-    bookmarkId: string,
-  ) {
+  async addRecipeToBookmark(userId: string, recipeId: string, bookmarkId: string) {
     const bookmark = await this.bookmarkRepository.findOne({
       where: {
         userId,

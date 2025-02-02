@@ -1,14 +1,7 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { IngredientEntity } from '@/modules/ingredient/entity/ingredient.entity';
 import { AmountTypeEntity } from '@/modules/ingredient/entity/amount-types.entity';
+import { IngredientEntity } from '@/modules/ingredient/entity/ingredient.entity';
 
 import { RecipeIngredientDto } from '../dto/recipte-ingredient.dto';
 import { RecipeEntity } from './recipe.entity';
@@ -18,7 +11,7 @@ export class RecipeIngredientUnitEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => RecipeEntity, (recipe) => recipe.ingredients, {
+  @ManyToOne(() => RecipeEntity, recipe => recipe.ingredients, {
     eager: true,
     orphanedRowAction: 'delete',
   })

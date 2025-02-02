@@ -1,19 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { BookmarkService } from '@/modules/bookmark/bookmark.service';
 
+import { defaultBookmarks } from './constants';
 import { UserRole } from './types';
 import { UserEntity } from './user.entity';
-import { defaultBookmarks } from './constants';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private BookmarkService: BookmarkService,
+    private bookmarkService: BookmarkService,
   ) {}
 
   async findAll() {
@@ -36,27 +36,33 @@ export class UserService {
     return (await this.userRepository.findOne({ where: { email } }))?.toDto();
   }
 
-  async create(user: {
-    email: string;
-    userName: string;
-    passHash: string;
-    role: UserRole;
-    salt: string;
-  }) {
+  async create(user: { email: string; userName: string; passHash: string; role: UserRole; salt: string }) {
+    if (await this.isExist(user.email)) {
+      throw new ConflictException('USER_WITH_THIS_EMAIL_EXIST');
+    }
+
+    const isNameExist =
+      (await this.userRepository.count({
+        where: { userName: user.userName },
+      })) > 0;
+
+    if (isNameExist) {
+      throw new ConflictException('USER_WITH_THIS_NAME_EXIST');
+    }
+
     const { id } = await this.userRepository.save(user);
 
-    const newUser = (
-      await this.userRepository.findOne({ where: { id } })
-    ).toDto();
+    const newUser = (await this.userRepository.findOne({ where: { id } })).toDto();
 
-    for (let i = 0; i < defaultBookmarks.length; i += 1) {
-      await this.BookmarkService.createBookmark(
-        newUser.id,
-        defaultBookmarks[i],
-      );
+    for (const bookmark of defaultBookmarks) {
+      await this.bookmarkService.createBookmark(newUser.id, bookmark);
     }
 
     return newUser;
+  }
+
+  async confirmEmail(email: string) {
+    return await this.userRepository.update({ email }, { isEmailVerified: true });
   }
 
   async findByEmailFull(email: string) {

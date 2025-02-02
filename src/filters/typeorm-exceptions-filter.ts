@@ -1,11 +1,6 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpStatus,
-} from '@nestjs/common';
-import { EntityNotFoundError, QueryFailedError } from 'typeorm';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { EntityNotFoundError, QueryFailedError } from 'typeorm';
 
 @Catch(QueryFailedError, EntityNotFoundError)
 export class TypeormExceptionsFilter implements ExceptionFilter {

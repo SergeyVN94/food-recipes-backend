@@ -1,12 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { IngredientDto } from '../dto/ingredient.dto';
 import { AmountTypeEntity } from './amount-types.entity';
@@ -46,7 +38,7 @@ export class IngredientEntity {
       slug: this.slug,
       name: this.name,
       description: this.description,
-      amountTypes: this.amountTypes.map((amountType) => amountType.id),
+      amountTypes: this.amountTypes.map(amountType => amountType.id),
       createdAt: this.createdAt,
       updateAt: this.updateAt,
     };

@@ -6,7 +6,7 @@ export class AmountTypeDto {
 
   @ApiProperty({ required: true })
   slug: string;
-  
+
   @ApiProperty({ required: true })
   name: string;
 

@@ -1,10 +1,10 @@
-import { DataSource } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import * as inquirer from '@inquirer/prompts';
+import * as bcrypt from 'bcrypt';
+import { DataSource } from 'typeorm';
 
-import { UserEntity } from '@/modules/user/user.entity';
-import { UserRole } from '@/modules/user/types';
 import dataSourceOptions from '@/config/data-source-options';
+import { UserRole } from '@/modules/user/types';
+import { UserEntity } from '@/modules/user/user.entity';
 
 const main = async () => {
   const name = await inquirer.input({
@@ -67,12 +67,10 @@ const main = async () => {
   user.salt = salt;
 
   const { id } = await entityManager.save(user);
-  const createdUser = (
-    await entityManager.findOneBy(UserEntity, { id })
-  ).toDto();
+  const createdUser = (await entityManager.findOneBy(UserEntity, { id })).toDto();
   await dataSource.destroy();
 
   console.log(`User created: ${JSON.stringify(createdUser, null, 2)}`);
 };
 
-main();
+void main();

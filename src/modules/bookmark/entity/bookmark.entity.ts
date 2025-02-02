@@ -1,13 +1,7 @@
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
 import { UserEntity } from '@/modules/user/user.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+
 import { BookmarkDto } from '../dto/bookmark.dto';
 
 @Entity()

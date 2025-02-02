@@ -1,25 +1,16 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '@/modules/auth/jwt.guard';
+import { Optional } from '@/modules/auth/decorators/optional.decorator';
+import { Public } from '@/modules/auth/decorators/public.decorator';
+import { User } from '@/modules/user/decorators/user.decorator';
+import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
 
-import { RecipeCreateDto } from './dto/recipe-create.dto';
-import { RecipeService } from './recipe.service';
 import { RecipesFilterDto } from './dto/filter.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
+import { RecipeDto } from './dto/recipe.dto';
+import { RecipeService } from './recipe.service';
 
 @ApiTags('Рецепты')
 @Controller('/recipes')
@@ -31,17 +22,15 @@ export class RecipeController {
     required: false,
   })
   @ApiResponse({ type: RecipeDto, isArray: true })
+  @Optional()
   @Post('/search')
-  @HttpCode(200)
-  async getRecipes(
-    @Body() filter: RecipesFilterDto,
-    @Req() req,
-  ): Promise<RecipeDto[]> {
-    return await this.recipeService.getRecipes(filter, req.user);
+  async getRecipes(@Body() filter: RecipesFilterDto, @User() user: UserAuthDto): Promise<RecipeDto[]> {
+    return await this.recipeService.getRecipes(filter, user);
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })
   @ApiResponse({ type: RecipeDto })
+  @Public()
   @Get('/slug/:slug')
   async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeDto> {
     const recipe = await this.recipeService.getRecipeBySlug(slug);
@@ -55,6 +44,7 @@ export class RecipeController {
 
   @ApiParam({ name: 'slug', type: String, required: true })
   @ApiResponse({ type: RecipeDto })
+  @Public()
   @Get('/:id')
   async getRecipeById(@Param('id') id: string): Promise<RecipeDto> {
     const recipe = await this.recipeService.getRecipeById(id);
@@ -67,32 +57,22 @@ export class RecipeController {
   }
 
   @ApiResponse({ type: RecipeDto })
-  @UseGuards(JwtAuthGuard)
   @Post()
-  async saveRecipe(@Body() body: RecipeCreateDto, @Req() req) {
-    const newRecipe = await this.recipeService.saveRecipe(
-      body,
-      req.user.userId,
-    );
+  async saveRecipe(@Body() body: RecipeCreateDto, @User() user: UserAuthDto) {
+    const newRecipe = await this.recipeService.saveRecipe(body, user.id);
 
     return newRecipe;
   }
 
   @ApiResponse({ type: RecipeDto })
-  @UseGuards(JwtAuthGuard)
   @Patch(':slug')
-  async updateRecipe(
-    @Body() body: RecipeUpdateDto,
-    @Param('slug') slug: string,
-    @Req() req,
-  ) {
-    return await this.recipeService.updateRecipe(slug, body, req.user);
+  async updateRecipe(@Body() body: RecipeUpdateDto, @Param('slug') slug: string, @User() user: UserAuthDto) {
+    return await this.recipeService.updateRecipe(slug, body, user);
   }
 
   @ApiResponse({ type: RecipeDto })
-  @UseGuards(JwtAuthGuard)
   @Delete(':slug')
-  async deleteRecipe(@Param('slug') slug: string, @Req() req) {
-    return await this.recipeService.deleteRecipe(slug, req.user);
+  async deleteRecipe(@Param('slug') slug: string, @User() user: UserAuthDto) {
+    return await this.recipeService.deleteRecipe(slug, user);
   }
 }

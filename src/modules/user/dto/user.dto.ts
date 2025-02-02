@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 import { UserRole } from '../types';
 
 export class UserDto {
@@ -10,6 +11,9 @@ export class UserDto {
 
   @ApiProperty({ required: false, description: 'Только для своего профиля' })
   email?: string;
+
+  @ApiProperty({ required: false, description: 'Только для своего профиля' })
+  isEmailVerified?: boolean;
 
   @ApiProperty({
     enum: UserRole,

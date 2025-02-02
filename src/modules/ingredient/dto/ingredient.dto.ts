@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AmountTypeDto } from './amount-type.dto';
 
 export class IngredientDto {
   @ApiProperty({ required: true })
@@ -7,7 +6,7 @@ export class IngredientDto {
 
   @ApiProperty({ required: true })
   slug: string;
-  
+
   @ApiProperty({ required: true })
   name: string;
 

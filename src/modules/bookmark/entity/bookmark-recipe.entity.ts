@@ -1,14 +1,6 @@
-import { RecipeEntity } from '@/modules/recipe';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
+import { RecipeEntity } from '@/modules/recipe';
 import { UserEntity } from '@/modules/user/user.entity';
 
 import { BookmarkRecipeDto } from '../dto/bookmark-recipe.dto';

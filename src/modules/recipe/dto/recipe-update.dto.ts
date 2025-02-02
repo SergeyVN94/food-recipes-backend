@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ArrayMinSize,
-  ArrayMaxSize,
-  IsArray,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsOptional, IsString, MaxLength } from 'class-validator';
+
 import { RecipeIngredientCreateDto } from './recipe-ingredient-create.dto';
 
 export class RecipeUpdateDto {

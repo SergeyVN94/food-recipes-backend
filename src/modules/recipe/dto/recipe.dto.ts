@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RecipeIngredientDto } from './recipte-ingredient.dto';
-import { RecipeStepDto } from './recipe-step.dto';
+
 import { UserDto } from '@/modules/user/dto/user.dto';
+
+import { RecipeStepDto } from './recipe-step.dto';
+import { RecipeIngredientDto } from './recipte-ingredient.dto';
 
 export class RecipeDto {
   @ApiProperty()
