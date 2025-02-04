@@ -9,6 +9,7 @@ export class MailService {
     await this.mailerService.sendMail({
       to: email,
       subject: 'Подтверждение регистрации',
+      from: `${process.env.MAIL_FROM_HOST} <no-reply@${process.env.MAIL_FROM_HOST}>`,
       context: {
         url: `${process.env.CLIENT_URL}${process.env.CONFIRMATION_PATH}?token=${token}`,
         name: new URL(process.env.CLIENT_URL).hostname,

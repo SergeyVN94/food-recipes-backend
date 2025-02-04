@@ -12,12 +12,12 @@ import { RecipeModule } from '@/modules/recipe';
     ConfigModule.forRoot({
       envFilePath: ['.env.local'],
     }),
-    // LoggerModule.forRoot({
-    //   pinoHttp: {
-    //     level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    //     transport: process.env.NODE_ENV === 'production' ? undefined : { target: 'pino-pretty' },
-    //   },
-    // }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+        transport: process.env.NODE_ENV === 'production' ? undefined : { target: 'pino-pretty' },
+      },
+    }),
     TypeOrmModule.forRoot(dataSourceOptions),
     AuthModule,
     RecipeModule,

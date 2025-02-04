@@ -1,4 +1,4 @@
-import { Body, Controller, Get, NotFoundException, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { UserDto } from '@/modules/user/dto/user.dto';
@@ -46,13 +46,7 @@ export class AuthController {
 
   @Public()
   @Get('confirmation-email/:token')
-  async validateConfirmationToken(@Query('token') token: string) {
-    const { email, type } = this.authService.verifyConfirmationToken(token);
-
-    if (!email || type !== 'confirm') {
-      throw new NotFoundException('INVALID_TOKEN');
-    }
-
-    return await this.userService.confirmEmail(email);
+  async validateConfirmationToken(@Param('token') token: string) {
+    return await this.authService.validateConfirmationToken(token);
   }
 }

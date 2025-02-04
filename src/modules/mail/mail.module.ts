@@ -8,16 +8,15 @@ import { MailService } from './mail.service';
   imports: [
     MailerModule.forRoot({
       transport: {
-        pool: true,
-        host: 'connect.smtp.bz',
-        port: 465,
+        host: process.env.MAIL_HOST,
+        port: Number(process.env.MAIL_PORT),
         secure: true,
         auth: {
-          user: 'info@pet-food-recipes.ru',
-          pass: 'rF$f4tG543326y4whq4hq34hq3q',
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
         },
         defaults: {
-          from: 'info@pet-food-recipes.ru',
+          from: `info@${process.env.MAIL_FROM_HOST}`,
         },
       },
       template: {

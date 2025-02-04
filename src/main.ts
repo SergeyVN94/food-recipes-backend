@@ -33,13 +33,13 @@ async function bootstrap() {
   });
   const reflector = app.get(Reflector);
   const jwtService = app.get(JwtService);
-  // const logger = app.get(Logger);
+  const logger = app.get(Logger);
 
   app.useGlobalPipes(validationPipe);
   app.useGlobalFilters(new TypeormExceptionsFilter());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector));
-  // app.useLogger(logger);
+  app.useLogger(logger);
   app.setGlobalPrefix('/api/v1');
 
   const config = new DocumentBuilder().setTitle('Рецепты').setDescription('Апи для сайта рецептов').setVersion('1.0').build();

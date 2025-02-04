@@ -9,6 +9,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
     const { name, message, stack } = exception;
+    const responseData = exception.getResponse();
 
     response.status(status).json({
       name,
@@ -17,6 +18,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
+      ...(typeof responseData === 'string' ? { message: responseData } : responseData),
     });
   }
 }
