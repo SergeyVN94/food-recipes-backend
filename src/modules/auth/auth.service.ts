@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     @InjectRepository(EmailVerifyLastTimeEntity)
     private readonly emailVerifyLastTimeRepository: Repository<EmailVerifyLastTimeEntity>,
   ) {}
@@ -133,7 +135,7 @@ export class AuthService {
 
   private verifyConfirmationToken(token: string) {
     return this.jwtService.verify<{ email: string; type: 'confirm' }>(token, {
-      secret: process.env.JWT_SECRET,
+      secret: this.configService.get<string>('JWT_SECRET'),
     });
   }
 

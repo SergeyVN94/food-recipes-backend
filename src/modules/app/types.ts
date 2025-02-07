@@ -1,0 +1,20 @@
+export type EnvVariables = {
+  NODE_ENV: 'development' | 'production';
+  PORT: number;
+  HOST: string;
+  APP_URL: string;
+  JWT_SECRET: string;
+  JWT_REFRESH_SECRET: string;
+  JWT_LIFETIME: string;
+  POSTGRES_USER: string;
+  POSTGRES_PASSWORD: string;
+  POSTGRES_DB: string;
+  POSTGRES_HOST: string;
+  POSTGRES_PORT: number;
+  MAIL_HOST: string;
+  MAIL_PORT: number;
+  MAIL_USER: string;
+  MAIL_PASSWORD: string;
+  MAIL_CONFIRMATION_PATH: string;
+  MAIL_FROM_HOST: string;
+};

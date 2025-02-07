@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -16,9 +17,12 @@ import { AccessJwtStrategy } from './strategy/access-jwt.strategy';
   controllers: [AuthController],
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_TOKEN_LIFETIME ?? '14d' },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: config.get<string>('JWT_LIFETIME') },
+      }),
     }),
     TypeOrmModule.forFeature([EmailVerifyLastTimeEntity]),
     MailModule,

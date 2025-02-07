@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { CacheInterceptor } from '@nestjs/cache-manager';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { SearchFilterDto } from '@/dto/search-filter.dto';
@@ -15,6 +16,7 @@ export class RecipeIngredientController {
 
   @ApiResponse({ type: IngredientDto, isArray: true })
   @Public()
+  @UseInterceptors(CacheInterceptor)
   @Get()
   async getRecipeIngredients(@Query() filter: SearchFilterDto): Promise<IngredientDto[]> {
     return await this.ingredientService.getIngredients(filter);
@@ -22,6 +24,7 @@ export class RecipeIngredientController {
 
   @ApiResponse({ type: AmountTypeDto, isArray: true })
   @Public()
+  @UseInterceptors(CacheInterceptor)
   @Get('amount-types')
   async getTypes(): Promise<AmountTypeDto[]> {
     return await this.ingredientService.getAmountTypes();
@@ -30,6 +33,7 @@ export class RecipeIngredientController {
   @ApiParam({ name: 'id' })
   @ApiResponse({ type: IngredientDto })
   @Public()
+  @UseInterceptors(CacheInterceptor)
   @Get(':id')
   async getRecipeIngredientById(@Param() id: string): Promise<IngredientDto> {
     return await this.ingredientService.getIngredientById(Number(id));

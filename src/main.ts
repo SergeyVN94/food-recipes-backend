@@ -1,4 +1,5 @@
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -34,11 +35,12 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   const jwtService = app.get(JwtService);
   const logger = app.get(Logger);
+  const configService = app.get(ConfigService);
 
   app.useGlobalPipes(validationPipe);
   app.useGlobalFilters(new TypeormExceptionsFilter());
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector));
+  app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector, configService));
   app.useLogger(logger);
   app.setGlobalPrefix('/api/v1');
 
@@ -47,11 +49,11 @@ async function bootstrap() {
   fs.writeFileSync('./swagger-spec.json', JSON.stringify(document));
   SwaggerModule.setup('swagger', app, document);
 
-  await app.listen(process.env.PORT ?? 8000, process.env.HOST ?? '0.0.0.0', () => {
-    console.log(`Server started on port ${process.env.PORT ?? 8000}`);
+  await app.listen(configService.get<number>('PORT'), configService.get('HOST'), () => {
+    console.log(`Server started on port ${configService.get('PORT')}`);
   });
 
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = configService.get<string>('NODE_ENV') === 'production';
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   if (!isProduction && module.hot) {
