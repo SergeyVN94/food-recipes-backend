@@ -21,19 +21,17 @@ export class UserService {
   }
 
   async findById(id: string) {
-    return (await this.userRepository.findOne({ where: { id } }))?.toDto();
+    return await this.userRepository.findOne({ where: { id } });
   }
 
   async findByName(name: string) {
-    return (
-      await this.userRepository.findOne({
-        where: { userName: name },
-      })
-    )?.toDto();
+    return await this.userRepository.findOne({
+      where: { userName: name },
+    });
   }
 
   async findByEmail(email: string) {
-    return (await this.userRepository.findOne({ where: { email } }))?.toDto();
+    return await this.userRepository.findOne({ where: { email } });
   }
 
   async create(user: { email: string; userName: string; passHash: string; role: UserRole; salt: string }) {
@@ -52,7 +50,7 @@ export class UserService {
 
     const { id } = await this.userRepository.save(user);
 
-    const newUser = (await this.userRepository.findOne({ where: { id } })).toDto();
+    const newUser = await this.userRepository.findOne({ where: { id } });
 
     for (const bookmark of defaultBookmarks) {
       await this.bookmarkService.createBookmark(newUser.id, bookmark);

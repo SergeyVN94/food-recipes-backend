@@ -9,7 +9,7 @@ import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
-import { RecipeDto } from './dto/recipe.dto';
+import { RecipeEntity } from './entity/recipe.entity';
 import { RecipeService } from './recipe.service';
 
 @ApiTags('Рецепты')
@@ -21,18 +21,18 @@ export class RecipeController {
     type: RecipesFilterDto,
     required: false,
   })
-  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiResponse({ type: RecipeEntity, isArray: true })
   @Optional()
   @Post('/search')
-  async getRecipes(@Body() filter: RecipesFilterDto, @User() user: UserAuthDto): Promise<RecipeDto[]> {
+  async getRecipes(@Body() filter: RecipesFilterDto, @User() user: UserAuthDto): Promise<RecipeEntity[]> {
     return await this.recipeService.getRecipes(filter, user);
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })
-  @ApiResponse({ type: RecipeDto })
+  @ApiResponse({ type: RecipeEntity })
   @Public()
   @Get('/slug/:slug')
-  async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeDto> {
+  async getRecipeBySlug(@Param('slug') slug: string): Promise<RecipeEntity> {
     const recipe = await this.recipeService.getRecipeBySlug(slug);
 
     if (!recipe) {
@@ -43,10 +43,10 @@ export class RecipeController {
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })
-  @ApiResponse({ type: RecipeDto })
+  @ApiResponse({ type: RecipeEntity })
   @Public()
   @Get('/:id')
-  async getRecipeById(@Param('id') id: string): Promise<RecipeDto> {
+  async getRecipeById(@Param('id') id: string): Promise<RecipeEntity> {
     const recipe = await this.recipeService.getRecipeById(id);
 
     if (!recipe) {
@@ -56,7 +56,7 @@ export class RecipeController {
     return recipe;
   }
 
-  @ApiResponse({ type: RecipeDto })
+  @ApiResponse({ type: RecipeEntity })
   @Post()
   async saveRecipe(@Body() body: RecipeCreateDto, @User() user: UserAuthDto) {
     const newRecipe = await this.recipeService.saveRecipe(body, user.id);
@@ -64,13 +64,13 @@ export class RecipeController {
     return newRecipe;
   }
 
-  @ApiResponse({ type: RecipeDto })
+  @ApiResponse({ type: RecipeEntity })
   @Patch(':slug')
   async updateRecipe(@Body() body: RecipeUpdateDto, @Param('slug') slug: string, @User() user: UserAuthDto) {
     return await this.recipeService.updateRecipe(slug, body, user);
   }
 
-  @ApiResponse({ type: RecipeDto })
+  @ApiResponse({ type: RecipeEntity })
   @Delete(':slug')
   async deleteRecipe(@Param('slug') slug: string, @User() user: UserAuthDto) {
     return await this.recipeService.deleteRecipe(slug, user);

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as inquirer from '@inquirer/prompts';
 import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
@@ -67,7 +68,7 @@ const main = async () => {
   user.salt = salt;
 
   const { id } = await entityManager.save(user);
-  const createdUser = (await entityManager.findOneBy(UserEntity, { id })).toDto();
+  const { passHash: _, salt: __, ...createdUser } = await entityManager.findOneBy(UserEntity, { id });
   await dataSource.destroy();
 
   console.log(`User created: ${JSON.stringify(createdUser, null, 2)}`);

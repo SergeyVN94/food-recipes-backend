@@ -11,7 +11,7 @@ export class MailService {
 
   async sendUserConfirmation(email: string, token: string) {
     const mailFrom = this.configService.get<string>('MAIL_FROM_HOST');
-    const clientUrl = this.configService.get<string>('CLIENT_URL');
+    const clientUrl = this.configService.get<string>('APP_URL');
     const conformationPath = this.configService.get<string>('MAIL_CONFIRMATION_PATH');
 
     await this.mailerService.sendMail({

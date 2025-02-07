@@ -5,14 +5,12 @@ import { Repository } from 'typeorm';
 
 import { BookmarkService } from '@/modules/bookmark/bookmark.service';
 import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
-import { UserDto } from '@/modules/user/dto/user.dto';
 import { UserRole } from '@/modules/user/types';
 import { UserEntity } from '@/modules/user/user.entity';
 
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
-import { RecipeDto } from './dto/recipe.dto';
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
 import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeEntity } from './entity/recipe.entity';
@@ -30,7 +28,7 @@ export class RecipeService {
     private bookmarkService: BookmarkService,
   ) {}
 
-  async getRecipes(filter: RecipesFilterDto = {}, user?: UserAuthDto | null): Promise<RecipeDto[]> {
+  async getRecipes(filter: RecipesFilterDto = {}, user?: UserAuthDto | null): Promise<RecipeEntity[]> {
     const isAdmin = user && user.role === UserRole.ADMIN;
     const isDeleted = filter.isDeleted ?? false;
     const whereIsDeleted = { isDeleted: Boolean(isAdmin && isDeleted) };
@@ -105,15 +103,13 @@ export class RecipeService {
       .orderBy('recipe.createdAt', 'DESC')
       .setParameters(queryParams);
 
-    const result = await mainQuery.getMany();
-
-    return result.map(recipe => recipe.toDto());
+    return await mainQuery.getMany();
   }
 
-  async getRecipeBySlug(slug: RecipeEntity['slug'], user?: UserDto | null, isDeleted = false): Promise<RecipeDto> {
+  async getRecipeBySlug(slug: RecipeEntity['slug'], user?: UserEntity | null, isDeleted = false): Promise<RecipeEntity> {
     const isAdmin = user && user.role === UserRole.ADMIN;
 
-    const recipe = await this.recipeRepository.findOne({
+    return await this.recipeRepository.findOne({
       where: { slug, isDeleted: isAdmin && isDeleted },
       relations: {
         steps: true,
@@ -121,14 +117,12 @@ export class RecipeService {
         user: true,
       },
     });
-
-    return recipe?.toDto();
   }
 
-  async getRecipeById(id: RecipeEntity['id'], user?: UserDto | null, isDeleted = false): Promise<RecipeDto> {
+  async getRecipeById(id: RecipeEntity['id'], user?: UserEntity | null, isDeleted = false): Promise<RecipeEntity> {
     const isAdmin = user && user.role === UserRole.ADMIN;
 
-    const recipe = await this.recipeRepository.findOne({
+    return await this.recipeRepository.findOne({
       where: { id, isDeleted: isAdmin && isDeleted },
       relations: {
         steps: true,
@@ -136,11 +130,9 @@ export class RecipeService {
         user: true,
       },
     });
-
-    return recipe?.toDto();
   }
 
-  async saveRecipe(dto: RecipeCreateDto, userId: UserEntity['id']): Promise<RecipeDto> {
+  async saveRecipe(dto: RecipeCreateDto, userId: UserEntity['id']): Promise<RecipeEntity> {
     const slug = createSlug(dto.title, {
       replacement: '_',
       trim: true,
@@ -248,7 +240,7 @@ export class RecipeService {
     return await this.getRecipeById(id);
   }
 
-  async markAsDeleted(id: RecipeEntity['id'], user: UserDto): Promise<void> {
+  async markAsDeleted(id: RecipeEntity['id'], user: UserEntity): Promise<void> {
     const recipe = await this.getRecipeById(id, user);
 
     if (!recipe) {
@@ -262,7 +254,7 @@ export class RecipeService {
     await this.recipeRepository.update({ id }, { isDeleted: true });
   }
 
-  async deleteRecipe(slug: RecipeEntity['slug'], user: UserAuthDto): Promise<RecipeDto> {
+  async deleteRecipe(slug: RecipeEntity['slug'], user: UserAuthDto): Promise<RecipeEntity> {
     const recipe = await this.getRecipeBySlug(slug);
 
     if (!recipe) {

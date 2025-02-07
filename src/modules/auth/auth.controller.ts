@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { UserDto } from '@/modules/user/dto/user.dto';
 import { UserService } from '@/modules/user/user.service';
 
+import { UserEntity } from '../user/user.entity';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { EmailConfirmationDto } from './dto/email-confirmation.dto';
@@ -19,7 +19,7 @@ export class AuthController {
     private readonly userService: UserService,
   ) {}
 
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: UserEntity })
   @Public()
   @Post('signup')
   async signUp(@Body() userRegDto: UserRegistryDto) {

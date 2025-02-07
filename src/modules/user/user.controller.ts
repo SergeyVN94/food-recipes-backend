@@ -5,7 +5,7 @@ import { Public } from '@/modules/auth/decorators/public.decorator';
 import { User } from '@/modules/user/decorators/user.decorator';
 
 import { UserAuthDto } from './dto/user-auth.dto';
-import { UserDto } from './dto/user.dto';
+import { UserEntity } from './user.entity';
 import { UserService } from './user.service';
 
 @ApiTags('Пользователи')
@@ -13,7 +13,7 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: UserEntity, description: 'Получить профиль пользователя по id' })
   @Public()
   @Get(':id')
   async getUser(@Param('id') id: string) {
@@ -29,7 +29,7 @@ export class UserController {
     return user;
   }
 
-  @ApiResponse({ type: UserDto })
+  @ApiResponse({ type: UserEntity, description: 'Получить свой профиль' })
   @Get()
   async getSelf(@User() authUser: UserAuthDto) {
     const user = await this.userService.findById(authUser.id);

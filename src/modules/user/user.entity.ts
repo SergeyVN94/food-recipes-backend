@@ -1,50 +1,50 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { UserDto } from './dto/user.dto';
 import { UserRole } from './types';
 
 @Entity()
 export class UserEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @ApiProperty()
   @Column({ unique: true })
   userName: string;
 
+  @ApiProperty({ required: false, description: 'Только для своего профиля' })
   @Column({ unique: true })
   email: string;
 
+  @ApiProperty({ required: false, description: 'Только для своего профиля' })
   @Column({ default: false })
   isEmailVerified: boolean;
 
+  @Exclude()
   @Column()
   passHash: string;
 
+  @Exclude()
   @Column()
   salt: string;
 
+  @ApiProperty({
+    enum: UserRole,
+  })
   @Column()
   role: UserRole;
 
+  @ApiProperty()
   @Column({ default: null })
   avatar: string;
 
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: string;
 
+  @ApiProperty()
   @UpdateDateColumn()
   updateAt: string;
-
-  toDto(): UserDto {
-    return {
-      id: this.id,
-      userName: this.userName,
-      email: this.email,
-      role: this.role,
-      avatar: this.avatar,
-      isEmailVerified: this.isEmailVerified,
-      createdAt: this.createdAt,
-      updateAt: this.updateAt,
-    };
-  }
 }

@@ -1,28 +1,35 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude, Transform } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { UserEntity } from '@/modules/user/user.entity';
 
-import { RecipeDto } from '../dto/recipe.dto';
 import { RecipeIngredientUnitEntity } from './recipe-ingredient-unit.entity';
 import { RecipeStepEntity } from './recipe-step.entity';
 
 @Entity()
 export class RecipeEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @ApiProperty()
   @Column({ type: 'varchar', length: 150 })
   title: string;
 
+  @ApiProperty()
   @Column({ unique: true })
   slug: string;
 
+  @ApiProperty()
   @Column({ type: 'text' })
   description: string;
 
+  @ApiProperty({ type: String, isArray: true })
   @Column('simple-array')
   images: string[];
 
+  @ApiProperty({ type: RecipeIngredientUnitEntity, isArray: true })
   @OneToMany(() => RecipeIngredientUnitEntity, unit => unit.recipe, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -30,6 +37,7 @@ export class RecipeEntity {
   })
   ingredients: RecipeIngredientUnitEntity[];
 
+  @ApiProperty({ type: RecipeStepEntity, isArray: true })
   @OneToMany(() => RecipeStepEntity, step => step.recipe, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -37,35 +45,29 @@ export class RecipeEntity {
   })
   steps: RecipeStepEntity[];
 
+  @ApiProperty({ type: UserEntity })
+  @Transform(({ value }: { value: UserEntity }) => {
+    delete value.email;
+    delete value.isEmailVerified;
+    return value;
+  })
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
+  @Exclude()
   @Column({ nullable: false })
   userId: string;
 
+  @ApiProperty()
   @Column({ default: false })
   isDeleted: boolean;
 
+  @ApiProperty()
   @CreateDateColumn()
   createdAt: string;
 
+  @ApiProperty()
   @UpdateDateColumn()
   updateAt: string;
-
-  toDto(): RecipeDto {
-    return {
-      id: this.id,
-      title: this.title,
-      slug: this.slug,
-      description: this.description,
-      ingredients: this.ingredients.map(ingredient => ingredient.toDto()),
-      images: this.images,
-      steps: this.steps,
-      user: this.user.toDto(),
-      isDeleted: this.isDeleted,
-      createdAt: this.createdAt,
-      updateAt: this.updateAt,
-    };
-  }
 }
