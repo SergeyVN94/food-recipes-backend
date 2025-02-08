@@ -2,18 +2,18 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { Public } from '@/modules/auth/decorators/public.decorator';
-import { User } from '@/modules/user/decorators/user.decorator';
-import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
+import { User } from '@/modules/users/decorators/user.decorator';
+import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
 
-import { BookmarkService } from './bookmark.service';
+import { BookmarksService } from './bookmarks.service';
 import { BookmarkCreateDto } from './dto/bookmark-create.dto';
 import { BookmarkRecipeDto } from './dto/bookmark-recipe.dto';
 import { BookmarkDto } from './dto/bookmark.dto';
 
 @ApiTags('Закладки')
 @Controller('/bookmarks')
-export class BookmarkController {
-  constructor(private readonly bookmarkService: BookmarkService) {}
+export class BookmarksController {
+  constructor(private readonly bookmarkService: BookmarksService) {}
 
   @ApiResponse({ type: BookmarkDto, isArray: true })
   @Get()

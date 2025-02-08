@@ -1,8 +1,8 @@
 import makeSlug from 'slugify';
 import { DataSource } from 'typeorm';
 
-import { AmountTypeEntity } from '@/modules/ingredient/entity/amount-types.entity';
-import { IngredientEntity } from '@/modules/ingredient/entity/ingredient.entity';
+import { AmountTypeEntity } from '@/modules/ingredients/entity/amount-types.entity';
+import { IngredientEntity } from '@/modules/ingredients/entity/ingredient.entity';
 
 import * as amountTypesData from './amount-types.json';
 import * as ingredientsData from './ingredients.json';

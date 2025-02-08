@@ -2,18 +2,18 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { BookmarkService } from '@/modules/bookmark/bookmark.service';
+import { BookmarksService } from '@/modules/bookmarks/bookmarks.service';
 
 import { defaultBookmarks } from './constants';
 import { UserRole } from './types';
 import { UserEntity } from './user.entity';
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
-    private bookmarkService: BookmarkService,
+    private bookmarkService: BookmarksService,
   ) {}
 
   async findAll() {

@@ -1,4 +1,4 @@
-import { BadRequestException, ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -15,10 +15,6 @@ declare const module: any;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: '*',
-      credentials: true,
-    },
     bodyParser: true,
   });
 
@@ -37,13 +33,21 @@ async function bootstrap() {
   const logger = app.get(Logger);
   const configService = app.get(ConfigService);
 
+  app.enableCors({
+    origin: configService.get<string>('APP_URL'),
+    credentials: true,
+  });
   app.useGlobalPipes(validationPipe);
   app.useGlobalFilters(new TypeormExceptionsFilter());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
   app.useGlobalGuards(new JwtAuthGuard(jwtService, reflector, configService));
   app.useLogger(logger);
-  app.setGlobalPrefix('/api/v1');
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+  app.setGlobalPrefix('/api');
 
   const config = new DocumentBuilder().setTitle('Рецепты').setDescription('Апи для сайта рецептов').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);

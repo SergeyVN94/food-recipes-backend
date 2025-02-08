@@ -6,7 +6,7 @@ import * as Joi from 'joi';
 import { LoggerModule } from 'nestjs-pino';
 
 import { AuthModule } from '@/modules/auth/auth.module';
-import { RecipeModule } from '@/modules/recipe';
+import { RecipesModule } from '@/modules/recipes';
 
 import { EnvVariables } from './types';
 
@@ -25,6 +25,7 @@ import { EnvVariables } from './types';
         JWT_LIFETIME: Joi.string()
           .regex(/^[0-9]+(d|h|m|s)$/)
           .default('14d'),
+        CSRF_SECRET: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
@@ -70,7 +71,7 @@ import { EnvVariables } from './types';
       isGlobal: true,
     }),
     AuthModule,
-    RecipeModule,
+    RecipesModule,
   ],
 })
 export class AppModule {}

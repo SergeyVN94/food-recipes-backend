@@ -6,6 +6,7 @@ export type EnvVariables = {
   JWT_SECRET: string;
   JWT_REFRESH_SECRET: string;
   JWT_LIFETIME: string;
+  CSRF_SECRET: string;
   POSTGRES_USER: string;
   POSTGRES_PASSWORD: string;
   POSTGRES_DB: string;

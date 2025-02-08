@@ -4,8 +4,8 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
-import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
-import { UserRole } from '@/modules/user/types';
+import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
+import { UserRole } from '@/modules/users/types';
 
 import { DECORATOR_KEY_IS_OPTIONAL } from '../decorators/optional.decorator';
 import { DECORATOR_KEY_IS_PUBLIC } from '../decorators/public.decorator';

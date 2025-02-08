@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { RecipeEntity } from '@/modules/recipe';
-import { UserEntity } from '@/modules/user/user.entity';
+import { RecipeEntity } from '@/modules/recipes';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { BookmarkRecipeDto } from '../dto/bookmark-recipe.dto';
 import { BookmarkEntity } from './bookmark.entity';

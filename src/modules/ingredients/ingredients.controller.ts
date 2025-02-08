@@ -1,4 +1,4 @@
-import { CacheInterceptor } from '@nestjs/cache-manager';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -7,33 +7,34 @@ import { Public } from '@/modules/auth/decorators/public.decorator';
 
 import { AmountTypeDto } from './dto/amount-type.dto';
 import { IngredientDto } from './dto/ingredient.dto';
-import { RecipeIngredientService } from './ingredient.service';
+import { IngredientsService } from './ingredients.service';
 
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(0)
 @ApiTags('Ингредиенты')
 @Controller('/ingredients')
-export class RecipeIngredientController {
-  constructor(private readonly ingredientService: RecipeIngredientService) {}
+export class IngredientsController {
+  constructor(private readonly ingredientService: IngredientsService) {}
 
   @ApiResponse({ type: IngredientDto, isArray: true })
+  @CacheKey('ingredients')
   @Public()
-  @UseInterceptors(CacheInterceptor)
   @Get()
   async getRecipeIngredients(@Query() filter: SearchFilterDto): Promise<IngredientDto[]> {
     return await this.ingredientService.getIngredients(filter);
   }
 
   @ApiResponse({ type: AmountTypeDto, isArray: true })
+  @CacheKey('amount-types')
   @Public()
-  @UseInterceptors(CacheInterceptor)
   @Get('amount-types')
   async getTypes(): Promise<AmountTypeDto[]> {
     return await this.ingredientService.getAmountTypes();
   }
 
-  @ApiParam({ name: 'id' })
   @ApiResponse({ type: IngredientDto })
   @Public()
-  @UseInterceptors(CacheInterceptor)
+  @ApiParam({ name: 'id' })
   @Get(':id')
   async getRecipeIngredientById(@Param() id: string): Promise<IngredientDto> {
     return await this.ingredientService.getIngredientById(Number(id));

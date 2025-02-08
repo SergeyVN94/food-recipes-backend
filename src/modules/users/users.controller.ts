@@ -2,16 +2,16 @@ import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { Public } from '@/modules/auth/decorators/public.decorator';
-import { User } from '@/modules/user/decorators/user.decorator';
+import { User } from '@/modules/users/decorators/user.decorator';
 
 import { UserAuthDto } from './dto/user-auth.dto';
 import { UserEntity } from './user.entity';
-import { UserService } from './user.service';
+import { UsersService } from './users.service';
 
 @ApiTags('Пользователи')
-@Controller('/user')
-export class UserController {
-  constructor(private userService: UserService) {}
+@Controller('/users')
+export class UsersController {
+  constructor(private userService: UsersService) {}
 
   @ApiResponse({ type: UserEntity, description: 'Получить профиль пользователя по id' })
   @Public()

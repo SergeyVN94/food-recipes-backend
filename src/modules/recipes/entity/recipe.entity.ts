@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Transform } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { UserEntity } from '@/modules/user/user.entity';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { RecipeIngredientUnitEntity } from './recipe-ingredient-unit.entity';
 import { RecipeStepEntity } from './recipe-step.entity';

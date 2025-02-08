@@ -3,19 +3,19 @@ import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { Optional } from '@/modules/auth/decorators/optional.decorator';
 import { Public } from '@/modules/auth/decorators/public.decorator';
-import { User } from '@/modules/user/decorators/user.decorator';
-import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
+import { User } from '@/modules/users/decorators/user.decorator';
+import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
 
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
 import { RecipeUpdateDto } from './dto/recipe-update.dto';
 import { RecipeEntity } from './entity/recipe.entity';
-import { RecipeService } from './recipe.service';
+import { RecipesService } from './recipes.service';
 
 @ApiTags('Рецепты')
 @Controller('/recipes')
-export class RecipeController {
-  constructor(private readonly recipeService: RecipeService) {}
+export class RecipesController {
+  constructor(private readonly recipeService: RecipesService) {}
 
   @ApiBody({
     type: RecipesFilterDto,

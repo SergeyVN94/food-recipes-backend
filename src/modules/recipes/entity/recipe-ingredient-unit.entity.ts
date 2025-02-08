@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { AmountTypeEntity } from '@/modules/ingredient/entity/amount-types.entity';
-import { IngredientEntity } from '@/modules/ingredient/entity/ingredient.entity';
+import { AmountTypeEntity } from '@/modules/ingredients/entity/amount-types.entity';
+import { IngredientEntity } from '@/modules/ingredients/entity/ingredient.entity';
 
 import { RecipeEntity } from './recipe.entity';
 

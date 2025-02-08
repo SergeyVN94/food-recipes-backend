@@ -4,8 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 
 import dataSourceOptions from '@/config/data-source-options';
-import { UserRole } from '@/modules/user/types';
-import { UserEntity } from '@/modules/user/user.entity';
+import { UserRole } from '@/modules/users/types';
+import { UserEntity } from '@/modules/users/user.entity';
 
 const main = async () => {
   const name = await inquirer.input({

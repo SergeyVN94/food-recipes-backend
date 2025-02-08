@@ -7,8 +7,6 @@ FROM node:23-alpine as builder
 WORKDIR /app
 COPY . .
 COPY --from=base /app/node_modules ./node_modules
-ARG NODE_ENV
-ENV NODE_ENV=$NODE_ENV
 RUN npm run build
 
 FROM node:23-alpine as runner
@@ -20,5 +18,7 @@ ARG PORT
 ARG HOSTNAME
 ENV PORT=$PORT
 ENV HOSTNAME=$HOSTNAME
+ARG NODE_ENV
+ENV NODE_ENV=$NODE_ENV
 EXPOSE $PORT
 CMD ["node", "./main.js"]

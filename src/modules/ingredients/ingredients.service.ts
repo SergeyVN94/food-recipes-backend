@@ -10,7 +10,7 @@ import { AmountTypeEntity } from './entity/amount-types.entity';
 import { IngredientEntity } from './entity/ingredient.entity';
 
 @Injectable()
-export class RecipeIngredientService {
+export class IngredientsService {
   constructor(
     @InjectRepository(IngredientEntity)
     private recipeRepository: Repository<IngredientEntity>,

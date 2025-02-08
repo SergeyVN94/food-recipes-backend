@@ -3,12 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AmountTypeEntity } from './entity/amount-types.entity';
 import { IngredientEntity } from './entity/ingredient.entity';
-import { RecipeIngredientController } from './ingredient.controller';
-import { RecipeIngredientService } from './ingredient.service';
+import { IngredientsController } from './ingredients.controller';
+import { IngredientsService } from './ingredients.service';
 
 @Module({
-  providers: [RecipeIngredientService],
-  controllers: [RecipeIngredientController],
+  providers: [IngredientsService],
+  controllers: [IngredientsController],
   imports: [TypeOrmModule.forFeature([IngredientEntity, AmountTypeEntity])],
 })
-export class IngredientModule {}
+export class IngredientsModule {}

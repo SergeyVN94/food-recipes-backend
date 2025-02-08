@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { UserService } from '@/modules/user/user.service';
+import { UsersService } from '@/modules/users/users.service';
 
-import { UserEntity } from '../user/user.entity';
+import { UserEntity } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { EmailConfirmationDto } from './dto/email-confirmation.dto';
@@ -16,7 +16,7 @@ import { UserRegistryDto } from './dto/user-registry.dto';
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UserService,
+    private readonly userService: UsersService,
   ) {}
 
   @ApiResponse({ type: UserEntity })

@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { MailModule } from '@/modules/mail/mail.module';
-import { UserModule } from '@/modules/user/user.module';
+import { UsersModule } from '@/modules/users/users.module';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -26,7 +26,7 @@ import { AccessJwtStrategy } from './strategy/access-jwt.strategy';
     }),
     TypeOrmModule.forFeature([EmailVerifyLastTimeEntity]),
     MailModule,
-    UserModule,
+    UsersModule,
   ],
   exports: [JwtModule],
 })

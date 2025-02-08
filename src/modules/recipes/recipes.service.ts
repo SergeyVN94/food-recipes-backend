@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import createSlug from 'slugify';
 import { Repository } from 'typeorm';
 
-import { BookmarkService } from '@/modules/bookmark/bookmark.service';
-import { UserAuthDto } from '@/modules/user/dto/user-auth.dto';
-import { UserRole } from '@/modules/user/types';
-import { UserEntity } from '@/modules/user/user.entity';
+import { BookmarksService } from '@/modules/bookmarks/bookmarks.service';
+import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
+import { UserRole } from '@/modules/users/types';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
@@ -16,7 +16,7 @@ import { RecipeStepEntity } from './entity/recipe-step.entity';
 import { RecipeEntity } from './entity/recipe.entity';
 
 @Injectable()
-export class RecipeService {
+export class RecipesService {
   constructor(
     @InjectRepository(RecipeEntity)
     private recipeRepository: Repository<RecipeEntity>,
@@ -24,8 +24,8 @@ export class RecipeService {
     private recipeStepRepository: Repository<RecipeStepEntity>,
     @InjectRepository(RecipeIngredientUnitEntity)
     private recipeIngredientUnitRepository: Repository<RecipeIngredientUnitEntity>,
-    @Inject(forwardRef(() => BookmarkService))
-    private bookmarkService: BookmarkService,
+    @Inject(forwardRef(() => BookmarksService))
+    private bookmarkService: BookmarksService,
   ) {}
 
   async getRecipes(filter: RecipesFilterDto = {}, user?: UserAuthDto | null): Promise<RecipeEntity[]> {

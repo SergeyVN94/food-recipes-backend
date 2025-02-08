@@ -6,8 +6,8 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 
 import { MailService } from '@/modules/mail/mail.service';
-import { UserRole } from '@/modules/user/types';
-import { UserService } from '@/modules/user/user.service';
+import { UserRole } from '@/modules/users/types';
+import { UsersService } from '@/modules/users/users.service';
 
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegistryDto } from './dto/user-registry.dto';
@@ -17,7 +17,7 @@ import { EmailVerifyLastTimeEntity } from './email-verify-last-time.entity';
 export class AuthService {
   constructor(
     private readonly mailService: MailService,
-    private readonly userService: UserService,
+    private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectRepository(EmailVerifyLastTimeEntity)

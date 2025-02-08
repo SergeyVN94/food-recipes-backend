@@ -1,2 +1,2 @@
-export * from './recipe.module';
+export * from './recipes.module';
 export * from './entity/recipe.entity';

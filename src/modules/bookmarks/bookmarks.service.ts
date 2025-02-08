@@ -7,7 +7,7 @@ import { BookmarkRecipeEntity } from './entity/bookmark-recipe.entity';
 import { BookmarkEntity } from './entity/bookmark.entity';
 
 @Injectable()
-export class BookmarkService {
+export class BookmarksService {
   constructor(
     @InjectRepository(BookmarkEntity)
     private bookmarkRepository: Repository<BookmarkEntity>,

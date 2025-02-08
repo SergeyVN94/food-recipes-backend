@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { UserEntity } from '@/modules/user/user.entity';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { BookmarkDto } from '../dto/bookmark.dto';
 
