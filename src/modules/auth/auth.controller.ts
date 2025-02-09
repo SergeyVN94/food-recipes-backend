@@ -40,6 +40,12 @@ export class AuthController {
     return await this.authService.refresh(user);
   }
 
+  @ApiResponse({ description: 'Проверка токена' })
+  @Get('check-token')
+  checkToken() {
+    return { message: 'OK' };
+  }
+
   @Public()
   @Post('confirmation-email')
   async sendConfirmationEmail(@Body() body: EmailConfirmationDto) {

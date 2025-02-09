@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: postgres_admin
       POSTGRES_PASSWORD: qrt352FG42tdf452gw23r
       POSTGRES_DB: recipes
+      TZ: 'GMT+3'
+      PGTZ: 'GMT+3'
     restart: unless-stopped
     ports:
       - '127.0.0.1:5432:5432'
