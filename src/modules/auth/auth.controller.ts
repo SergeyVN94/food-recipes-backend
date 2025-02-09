@@ -1,23 +1,22 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
-import { UsersService } from '@/modules/users/users.service';
+import { User } from '@/modules/users/decorators/user.decorator';
+import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
+import { UserEntity } from '@/modules/users/entity/user.entity';
 
-import { UserEntity } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 import { EmailConfirmationDto } from './dto/email-confirmation.dto';
 import { TokenResponseDto } from './dto/token-response.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegistryDto } from './dto/user-registry.dto';
+import { RefreshJwtAuthGuard } from './guards/refresh-jwt.guard';
 
 @ApiTags('Аккаунт')
 @Controller('/auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UsersService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @ApiResponse({ type: UserEntity })
   @Public()
@@ -33,10 +32,13 @@ export class AuthController {
     return await this.authService.signIn(userLoginDto);
   }
 
-  // @ApiResponse({ type: TokenResponseDto })
-  // @UseGuards(JwtAuthGuard)
-  // @Post('refresh')
-  // async refresh(@Request() req) {}
+  @ApiResponse({ type: TokenResponseDto })
+  @Public()
+  @UseGuards(RefreshJwtAuthGuard)
+  @Get('refresh')
+  async refresh(@User() user: UserAuthDto) {
+    return await this.authService.refresh(user);
+  }
 
   @Public()
   @Post('confirmation-email')

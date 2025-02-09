@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 
 import { BookmarksService } from '@/modules/bookmarks/bookmarks.service';
 import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
+import { UserEntity } from '@/modules/users/entity/user.entity';
 import { UserRole } from '@/modules/users/types';
-import { UserEntity } from '@/modules/users/user.entity';
 
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeCreateDto } from './dto/recipe-create.dto';

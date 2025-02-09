@@ -5,4 +5,6 @@ export class UserAuthDto {
   email: string;
   role: UserRole;
   isEmailVerified: boolean;
+  banEndDate: string;
+  refreshToken?: string;
 }

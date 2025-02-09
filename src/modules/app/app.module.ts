@@ -24,8 +24,10 @@ import { EnvVariables } from './types';
         JWT_REFRESH_SECRET: Joi.string().required(),
         JWT_LIFETIME: Joi.string()
           .regex(/^[0-9]+(d|h|m|s)$/)
-          .default('14d'),
-        CSRF_SECRET: Joi.string().required(),
+          .default('30m'),
+        JWT_REFRESH_LIFETIME: Joi.string()
+          .regex(/^[0-9]+(d|h|m|s)$/)
+          .default('7d'),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),

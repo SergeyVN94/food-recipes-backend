@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,9 +9,11 @@ import { MailService } from '@/modules/mail/mail.service';
 import { UserRole } from '@/modules/users/types';
 import { UsersService } from '@/modules/users/users.service';
 
+import { UserAuthDto } from '../users/dto/user-auth.dto';
 import { UserLoginDto } from './dto/user-login.dto';
 import { UserRegistryDto } from './dto/user-registry.dto';
-import { EmailVerifyLastTimeEntity } from './email-verify-last-time.entity';
+import { EmailVerifyLastTimeEntity } from './entity/email-verify-last-time.entity';
+import { RefreshTokenEntity } from './entity/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,8 @@ export class AuthService {
     private readonly configService: ConfigService,
     @InjectRepository(EmailVerifyLastTimeEntity)
     private readonly emailVerifyLastTimeRepository: Repository<EmailVerifyLastTimeEntity>,
+    @InjectRepository(RefreshTokenEntity)
+    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>,
   ) {}
 
   async signIn(userLoginDto: UserLoginDto) {
@@ -31,29 +35,70 @@ export class AuthService {
       throw new UnauthorizedException('EMAIL_NOT_VERIFIED');
     }
 
-    const payload = {
+    const payload: UserAuthDto = {
       email: user.email,
       id: user.id,
       role: user.role,
       isEmailVerified: user.isEmailVerified,
+      banEndDate: user.ban?.endDate || '',
     };
 
-    return {
-      accessToken: this.jwtService.sign(payload),
-    };
+    const tokens = await this.generateTokens(payload);
+
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 
-  async signUp(userRegDto: UserRegistryDto) {
+  async signUp(userRegistryDto: UserRegistryDto) {
     const salt = await bcrypt.genSalt();
-    const passHash = await bcrypt.hash(userRegDto.password, salt);
+    const passHash = await bcrypt.hash(userRegistryDto.password, salt);
 
     return await this.userService.create({
       salt,
       passHash,
-      userName: userRegDto.userName,
-      email: userRegDto.email,
+      userName: userRegistryDto.userName,
+      email: userRegistryDto.email,
       role: UserRole.USER,
     });
+  }
+
+  async refresh(user: UserAuthDto) {
+    if (!user.refreshToken) {
+      throw new ForbiddenException('REFRESH_TOKEN_NOT_VALID');
+    }
+
+    const existUser = await this.userService.findById(user.id);
+
+    if (!existUser) {
+      throw new ForbiddenException('USER_NOT_FOUND');
+    }
+
+    const refreshTokenEntity = await this.refreshTokenRepository.findOne({ where: { userId: user.id } });
+
+    if (!refreshTokenEntity) {
+      throw new ForbiddenException('USER_NOT_FOUND');
+    }
+
+    const tokenValid = bcrypt.compareSync(user.refreshToken, refreshTokenEntity.tokenHash);
+
+    if (!tokenValid) {
+      throw new ForbiddenException('REFRESH_TOKEN_NOT_VALID');
+    }
+
+    const payload: UserAuthDto = {
+      email: user.email,
+      id: user.id,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+      banEndDate: existUser.ban?.endDate || '',
+    };
+
+    const tokens = await this.generateTokens(payload);
+
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 
   async validateUser(email: string, password: string) {
@@ -139,7 +184,35 @@ export class AuthService {
     });
   }
 
+  private async updateRefreshToken(userId: string, refreshToken: string) {
+    return await this.refreshTokenRepository.upsert(
+      {
+        userId,
+        tokenHash: bcrypt.hashSync(refreshToken, 2),
+      },
+      ['userId'],
+    );
+  }
+
   private async removeVerifyEmailTimeLabel(email: string) {
     await this.emailVerifyLastTimeRepository.delete({ email });
+  }
+
+  private async generateTokens(payload: UserAuthDto) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_LIFETIME'),
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: this.configService.get<string>('JWT_REFRESH_LIFETIME'),
+      }),
+    ]);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

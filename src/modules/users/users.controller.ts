@@ -5,7 +5,7 @@ import { Public } from '@/modules/auth/decorators/public.decorator';
 import { User } from '@/modules/users/decorators/user.decorator';
 
 import { UserAuthDto } from './dto/user-auth.dto';
-import { UserEntity } from './user.entity';
+import { UserEntity } from './entity/user.entity';
 import { UsersService } from './users.service';
 
 @ApiTags('Пользователи')
@@ -15,7 +15,7 @@ export class UsersController {
 
   @ApiResponse({ type: UserEntity, description: 'Получить профиль пользователя по id' })
   @Public()
-  @Get(':id')
+  @Get('/user/:id')
   async getUser(@Param('id') id: string) {
     const user = await this.userService.findById(id);
 
@@ -30,7 +30,7 @@ export class UsersController {
   }
 
   @ApiResponse({ type: UserEntity, description: 'Получить свой профиль' })
-  @Get()
+  @Get('/user')
   async getSelf(@User() authUser: UserAuthDto) {
     const user = await this.userService.findById(authUser.id);
 

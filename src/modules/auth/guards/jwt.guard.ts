@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
 import { UserRole } from '@/modules/users/types';
 
+import { DECORATOR_KEY_IS_BANNED } from '../decorators/banned.decorator';
 import { DECORATOR_KEY_IS_OPTIONAL } from '../decorators/optional.decorator';
 import { DECORATOR_KEY_IS_PUBLIC } from '../decorators/public.decorator';
 import { DECORATOR_KEY_ACCESS_ROLES } from '../decorators/roles.decorator';
@@ -21,12 +22,12 @@ export class JwtAuthGuard implements CanActivate {
 
   canActivate(context: ExecutionContext) {
     const isPublic = this.reflector.getAllAndOverride<boolean>(DECORATOR_KEY_IS_PUBLIC, [context.getHandler(), context.getClass()]);
+    const isOptional = this.reflector.getAllAndOverride<boolean>(DECORATOR_KEY_IS_OPTIONAL, [context.getHandler(), context.getClass()]);
+    const isBanned = this.reflector.getAllAndOverride<boolean>(DECORATOR_KEY_IS_BANNED, [context.getHandler(), context.getClass()]);
 
     if (isPublic) {
       return true;
     }
-
-    const isOptional = this.reflector.getAllAndOverride<boolean>(DECORATOR_KEY_IS_OPTIONAL, [context.getHandler(), context.getClass()]);
 
     const request: Request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
@@ -40,7 +41,12 @@ export class JwtAuthGuard implements CanActivate {
     try {
       payload = this.jwtService.verify(token, {
         secret: this.configService.get<string>('JWT_SECRET'),
+        maxAge: this.configService.get<string>('JWT_LIFETIME'),
       });
+
+      if (payload.banEndDate && !isBanned && new Date(payload.banEndDate) > new Date()) {
+        throw new ForbiddenException('USER_IS_BANNED');
+      }
 
       request.user = payload;
     } catch {

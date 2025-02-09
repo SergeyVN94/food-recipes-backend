@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 import { BookmarksService } from '@/modules/bookmarks/bookmarks.service';
 
 import { defaultBookmarks } from './constants';
+import { UserEntity } from './entity/user.entity';
 import { UserRole } from './types';
-import { UserEntity } from './user.entity';
 
 @Injectable()
 export class UsersService {
@@ -17,21 +17,30 @@ export class UsersService {
   ) {}
 
   async findAll() {
-    return await this.userRepository.find();
+    return await this.userRepository.find({
+      relations: { ban: true },
+    });
   }
 
   async findById(id: string) {
-    return await this.userRepository.findOne({ where: { id } });
+    return await this.userRepository.findOne({
+      where: { id },
+      relations: { ban: true },
+    });
   }
 
   async findByName(name: string) {
     return await this.userRepository.findOne({
       where: { userName: name },
+      relations: { ban: true },
     });
   }
 
   async findByEmail(email: string) {
-    return await this.userRepository.findOne({ where: { email } });
+    return await this.userRepository.findOne({
+      where: { email },
+      relations: { ban: true },
+    });
   }
 
   async create(user: { email: string; userName: string; passHash: string; role: UserRole; salt: string }) {

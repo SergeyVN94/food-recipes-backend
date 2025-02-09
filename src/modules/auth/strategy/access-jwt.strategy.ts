@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UserEntity } from '@/modules/users/user.entity';
+import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
 
 @Injectable()
 export class AccessJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -14,7 +14,7 @@ export class AccessJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  validate(payload: UserEntity) {
+  validate(payload: UserAuthDto) {
     return {
       userId: payload.id,
       email: payload.email,
