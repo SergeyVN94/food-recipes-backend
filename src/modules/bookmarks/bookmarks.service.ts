@@ -16,11 +16,9 @@ export class BookmarksService {
   ) {}
 
   async getBookmarks(userId: string) {
-    return (
-      await this.bookmarkRepository.find({
-        where: { userId },
-      })
-    ).map(bookmark => bookmark.toDto());
+    return await this.bookmarkRepository.find({
+      where: { userId },
+    });
   }
 
   async createBookmark(userId: string, title: string) {
@@ -47,13 +45,11 @@ export class BookmarksService {
       slug,
     });
 
-    return (
-      await this.bookmarkRepository.findOne({
-        where: {
-          id: bookmarkId,
-        },
-      })
-    ).toDto();
+    return await this.bookmarkRepository.findOne({
+      where: {
+        id: bookmarkId,
+      },
+    });
   }
 
   async updateBookmark(userId: string, bookmarkId: string, title: string) {
@@ -109,7 +105,7 @@ export class BookmarksService {
       },
     });
 
-    return bookmarksRecipes.map(item => item.toDto());
+    return bookmarksRecipes;
   }
 
   async addRecipeToBookmark(userId: string, recipeId: string, bookmarkId: string) {
@@ -135,13 +131,11 @@ export class BookmarksService {
       bookmarkId,
     });
 
-    return (
-      await this.bookmarkRecipeRepository.findOne({
-        where: {
-          id: recipeBookmarkId,
-        },
-      })
-    ).toDto();
+    return await this.bookmarkRecipeRepository.findOne({
+      where: {
+        id: recipeBookmarkId,
+      },
+    });
   }
 
   async removeRecipeFromBookmark(userId: string, recipeId: string) {
@@ -150,5 +144,13 @@ export class BookmarksService {
 
   async removeRecipeFromAllBookmarks(recipeId: string) {
     return await this.bookmarkRecipeRepository.delete({ recipeId });
+  }
+
+  async getRecipesInBookmarkCount(recipeId: string) {
+    return await this.bookmarkRecipeRepository.count({
+      where: {
+        recipeId,
+      },
+    });
   }
 }

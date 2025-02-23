@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 import { BookmarksService } from '@/modules/bookmarks/bookmarks.service';
 
 import { defaultBookmarks } from './constants';
-import { UserEntity } from './entity/user.entity';
 import { UserRole } from './types';
+import { UserEntity } from './user.entity';
 
 @Injectable()
 export class UsersService {

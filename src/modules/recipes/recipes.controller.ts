@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, Patch, Post } from '@nestjs/common';
 import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { Optional } from '@/modules/auth/decorators/optional.decorator';
@@ -22,6 +22,7 @@ export class RecipesController {
     required: false,
   })
   @ApiResponse({ type: RecipeEntity, isArray: true })
+  @HttpCode(HttpStatus.OK)
   @Optional()
   @Post('/search')
   async getRecipes(@Body() filter: RecipesFilterDto, @User() user: UserAuthDto): Promise<RecipeEntity[]> {
@@ -43,7 +44,7 @@ export class RecipesController {
   }
 
   @ApiParam({ name: 'slug', type: String, required: true })
-  @ApiResponse({ type: RecipeEntity })
+  @ApiResponse({ type: RecipeEntity, status: 200 })
   @Public()
   @Get('/:id')
   async getRecipeById(@Param('id') id: string): Promise<RecipeEntity> {
@@ -59,9 +60,7 @@ export class RecipesController {
   @ApiResponse({ type: RecipeEntity })
   @Post()
   async saveRecipe(@Body() body: RecipeCreateDto, @User() user: UserAuthDto) {
-    const newRecipe = await this.recipeService.saveRecipe(body, user.id);
-
-    return newRecipe;
+    return await this.recipeService.saveRecipe(body, user.id);
   }
 
   @ApiResponse({ type: RecipeEntity })
@@ -74,5 +73,17 @@ export class RecipesController {
   @Delete(':slug')
   async deleteRecipe(@Param('slug') slug: string, @User() user: UserAuthDto) {
     return await this.recipeService.deleteRecipe(slug, user);
+  }
+
+  @ApiResponse({ type: RecipeEntity })
+  @Patch(':slug/publish')
+  async publishRecipe(@Param('slug') slug: string, @User() user: UserAuthDto) {
+    return await this.recipeService.publishRecipe(slug, user);
+  }
+
+  @ApiResponse({ type: RecipeEntity })
+  @Patch(':slug/unpublish')
+  async unpublishRecipe(@Param('slug') slug: string, @User() user: UserAuthDto) {
+    return await this.recipeService.unpublishRecipe(slug, user);
   }
 }

@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as inquirer from '@inquirer/prompts';
 import * as bcrypt from 'bcrypt';
-import { DataSource } from 'typeorm';
 
-import dataSourceOptions from '@/config/data-source-options';
-import { UserEntity } from '@/modules/users/entity/user.entity';
+import { connectionSource } from '@/config/typeorm';
 import { UserRole } from '@/modules/users/types';
+import { UserEntity } from '@/modules/users/user.entity';
 
 const main = async () => {
   const name = await inquirer.input({
@@ -31,15 +30,19 @@ const main = async () => {
     ],
   });
 
+  const isEmailVerified = await inquirer.checkbox({
+    message: 'email verified:',
+    choices: [
+      { name: 'Yes', value: true },
+      { name: 'No', value: false },
+    ],
+  });
+
   console.log(`Creating user ${name} with email ${email} and role ${role}`);
 
-  const dataSource = new DataSource({
-    ...dataSourceOptions,
-    entities: [__dirname + '/../**/user.entity{.ts,.js}'],
-  });
-  await dataSource.initialize();
+  await connectionSource.initialize();
 
-  const entityManager = dataSource.createEntityManager();
+  const entityManager = connectionSource.createEntityManager();
 
   const isUserEmailExist = await entityManager.existsBy(UserEntity, {
     email,
@@ -66,10 +69,11 @@ const main = async () => {
   user.passHash = passHash;
   user.role = role;
   user.salt = salt;
+  user.isEmailVerified = isEmailVerified[0];
 
   const { id } = await entityManager.save(user);
   const { passHash: _, salt: __, ...createdUser } = await entityManager.findOneBy(UserEntity, { id });
-  await dataSource.destroy();
+  await connectionSource.destroy();
 
   console.log(`User created: ${JSON.stringify(createdUser, null, 2)}`);
 };

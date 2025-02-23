@@ -19,7 +19,7 @@ import { RefreshTokenEntity } from './entity/refresh-token.entity';
 export class AuthService {
   constructor(
     private readonly mailService: MailService,
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     @InjectRepository(EmailVerifyLastTimeEntity)
@@ -54,7 +54,7 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const passHash = await bcrypt.hash(userRegistryDto.password, salt);
 
-    return await this.userService.create({
+    return await this.usersService.create({
       salt,
       passHash,
       userName: userRegistryDto.userName,
@@ -68,7 +68,7 @@ export class AuthService {
       throw new ForbiddenException('REFRESH_TOKEN_NOT_VALID');
     }
 
-    const existUser = await this.userService.findById(user.id);
+    const existUser = await this.usersService.findById(user.id);
 
     if (!existUser) {
       throw new ForbiddenException('USER_NOT_FOUND');
@@ -102,7 +102,7 @@ export class AuthService {
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.userService.findByEmailFull(email);
+    const user = await this.usersService.findByEmailFull(email);
 
     if (!user) {
       throw new UnauthorizedException('LOGIN_OR_PASSWORD_INCORRECT');
@@ -124,7 +124,7 @@ export class AuthService {
       throw new NotFoundException('INVALID_TOKEN');
     }
 
-    const result = await this.userService.confirmEmail(email);
+    const result = await this.usersService.confirmEmail(email);
 
     if (!result.affected) {
       throw new NotFoundException('INVALID_TOKEN');
@@ -136,7 +136,7 @@ export class AuthService {
   }
 
   async sendUserConfirmation(email: string) {
-    const user = await this.userService.findByEmailFull(email);
+    const user = await this.usersService.findByEmailFull(email);
 
     if (!user || user.email !== email) {
       throw new NotFoundException('USER_NOT_EXIST');

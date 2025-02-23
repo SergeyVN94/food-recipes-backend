@@ -5,7 +5,6 @@ import { FindManyOptions, Like, Repository } from 'typeorm';
 import { SearchFilterDto } from '@/dto/search-filter.dto';
 
 import { AmountTypeDto } from './dto/amount-type.dto';
-import { IngredientDto } from './dto/ingredient.dto';
 import { AmountTypeEntity } from './entity/amount-types.entity';
 import { IngredientEntity } from './entity/ingredient.entity';
 
@@ -13,9 +12,9 @@ import { IngredientEntity } from './entity/ingredient.entity';
 export class IngredientsService {
   constructor(
     @InjectRepository(IngredientEntity)
-    private recipeRepository: Repository<IngredientEntity>,
+    private ingredientsRepository: Repository<IngredientEntity>,
     @InjectRepository(AmountTypeEntity)
-    private amountTypeRepository: Repository<AmountTypeEntity>,
+    private amountTypesRepository: Repository<AmountTypeEntity>,
   ) {}
 
   async getIngredients(filter: SearchFilterDto) {
@@ -32,18 +31,19 @@ export class IngredientsService {
       findOptions.where['name'] = Like(query);
     }
 
-    return (await this.recipeRepository.find(findOptions)).map(ingredient => ingredient.toDto());
+    return (await this.ingredientsRepository.find(findOptions)).map(ingredient => ({
+      ...ingredient,
+      amountTypes: ingredient.amountTypes.map(amountType => amountType.id),
+    }));
   }
 
-  async getIngredientById(id: IngredientEntity['id']): Promise<IngredientDto | null> {
-    return (
-      await this.recipeRepository.findOne({
-        where: { id },
-      })
-    )?.toDto();
+  async getIngredientById(id: IngredientEntity['id']): Promise<IngredientEntity | null> {
+    return await this.ingredientsRepository.findOne({
+      where: { id },
+    });
   }
 
   async getAmountTypes(): Promise<AmountTypeDto[]> {
-    return await this.amountTypeRepository.find();
+    return await this.amountTypesRepository.find();
   }
 }

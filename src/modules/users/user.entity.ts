@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { UserRole } from '../types';
-import { BanEntity } from './ban.entity';
+import { BanEntity } from '../bans/ban.entity';
+import { UserRole } from './types';
 
 @Entity()
 export class UserEntity {
@@ -15,9 +15,13 @@ export class UserEntity {
   @Column({ unique: true })
   userName: string;
 
-  @OneToOne(() => BanEntity, ban => ban.user, { nullable: true })
+  @OneToOne(() => BanEntity, ban => ban.user)
   @JoinColumn({ name: 'banId' })
   ban: BanEntity | null;
+
+  @Exclude()
+  @Column({ nullable: true, type: 'uuid' })
+  banId: string;
 
   @ApiProperty({ required: false, description: 'Только для своего профиля' })
   @Column({ unique: true })

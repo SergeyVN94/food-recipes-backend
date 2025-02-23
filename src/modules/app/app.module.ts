@@ -6,7 +6,7 @@ import * as Joi from 'joi';
 import { LoggerModule } from 'nestjs-pino';
 
 import { AuthModule } from '@/modules/auth/auth.module';
-import { RecipesModule } from '@/modules/recipes';
+import { RecipesModule } from '@/modules/recipes/recipes.module';
 
 import { EnvVariables } from './types';
 
@@ -49,8 +49,9 @@ import { EnvVariables } from './types';
         const isProduction = config.get<string>('NODE_ENV') === 'production';
 
         return {
+          exclude: isProduction ? ['debug', 'verbose'] : ['debug'],
           pinoHttp: {
-            level: isProduction ? 'info' : 'debug',
+            level: 'error',
             transport: isProduction ? undefined : { target: 'pino-pretty' },
           },
         };
@@ -67,6 +68,7 @@ import { EnvVariables } from './types';
         database: config.get<string>('POSTGRES_DB'),
         username: config.get<string>('POSTGRES_USER'),
         password: config.get<string>('POSTGRES_PASSWORD'),
+        logging: false,
       }),
     }),
     CacheModule.register({

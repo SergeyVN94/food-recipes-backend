@@ -48,4 +48,13 @@ export class RecipesFilterDto {
   @IsOptional()
   @IsBoolean()
   isDeleted?: boolean;
+
+  @ApiProperty({
+    description: 'Показать рецепты помеченные опубликованными (только для админов и модераторов!)',
+    required: false,
+    default: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
 }

@@ -5,19 +5,19 @@ import { Public } from '@/modules/auth/decorators/public.decorator';
 import { User } from '@/modules/users/decorators/user.decorator';
 
 import { UserAuthDto } from './dto/user-auth.dto';
-import { UserEntity } from './entity/user.entity';
+import { UserEntity } from './user.entity';
 import { UsersService } from './users.service';
 
 @ApiTags('Пользователи')
 @Controller('/users')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(private usersService: UsersService) {}
 
   @ApiResponse({ type: UserEntity, description: 'Получить профиль пользователя по id' })
   @Public()
   @Get('/user/:id')
   async getUser(@Param('id') id: string) {
-    const user = await this.userService.findById(id);
+    const user = await this.usersService.findById(id);
 
     if (!user) {
       throw new NotFoundException('USER_NOT_FOUND');
@@ -32,7 +32,7 @@ export class UsersController {
   @ApiResponse({ type: UserEntity, description: 'Получить свой профиль' })
   @Get('/user')
   async getSelf(@User() authUser: UserAuthDto) {
-    const user = await this.userService.findById(authUser.id);
+    const user = await this.usersService.findById(authUser.id);
 
     if (!user) {
       throw new NotFoundException('USER_NOT_FOUND');

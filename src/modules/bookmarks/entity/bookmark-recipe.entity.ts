@@ -1,46 +1,46 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { RecipeEntity } from '@/modules/recipes';
-import { UserEntity } from '@/modules/users/entity/user.entity';
+import { RecipeEntity } from '@/modules/recipes/entity/recipe.entity';
+import { UserEntity } from '@/modules/users/user.entity';
 
-import { BookmarkRecipeDto } from '../dto/bookmark-recipe.dto';
 import { BookmarkEntity } from './bookmark.entity';
 
 @Entity()
 export class BookmarkRecipeEntity {
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Exclude()
   @ManyToOne(() => BookmarkEntity)
   @JoinColumn({ name: 'bookmarkId' })
   bookmark: BookmarkEntity;
 
-  @Column({ nullable: false })
+  @ApiProperty()
+  @Column({ nullable: false, type: 'uuid' })
   bookmarkId: string;
 
-  @ManyToMany(() => RecipeEntity)
+  @Exclude()
+  @ManyToOne(() => RecipeEntity)
   @JoinColumn({ name: 'recipeId' })
   recipe: RecipeEntity;
 
-  @Column({ nullable: false })
+  @ApiProperty()
+  @Column({ nullable: false, type: 'uuid' })
   recipeId: string;
 
+  @Exclude()
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
-  @Column({ nullable: false })
+  @Exclude()
+  @Column({ nullable: false, type: 'uuid' })
   userId: string;
 
+  @ApiProperty()
   @CreateDateColumn()
-  createdAt: string;
-
-  toDto(): BookmarkRecipeDto {
-    return {
-      id: this.id,
-      bookmarkId: this.bookmarkId,
-      recipeId: this.recipeId,
-      createdAt: this.createdAt,
-    };
-  }
+  createdAt: Date;
 }

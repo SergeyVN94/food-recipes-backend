@@ -55,12 +55,12 @@ export class JwtAuthGuard implements CanActivate {
       }
     }
 
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(DECORATOR_KEY_ACCESS_ROLES, [
+    const requiredRoles = this.reflector.getAllAndOverride<Record<UserRole, boolean>>(DECORATOR_KEY_ACCESS_ROLES, [
       context.getHandler(),
       context.getClass(),
     ]);
 
-    if (payload && requiredRoles && !requiredRoles.includes(payload.role)) {
+    if (payload && requiredRoles && !requiredRoles[payload.role]) {
       throw new ForbiddenException();
     }
 

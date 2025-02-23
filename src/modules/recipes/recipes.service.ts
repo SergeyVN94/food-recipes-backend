@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 
 import { BookmarksService } from '@/modules/bookmarks/bookmarks.service';
 import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
-import { UserEntity } from '@/modules/users/entity/user.entity';
 import { UserRole } from '@/modules/users/types';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { RecipesFilterDto } from './dto/filter.dto';
 import { RecipeCreateDto } from './dto/recipe-create.dto';
@@ -29,18 +29,21 @@ export class RecipesService {
   ) {}
 
   async getRecipes(filter: RecipesFilterDto = {}, user?: UserAuthDto | null): Promise<RecipeEntity[]> {
-    const isAdmin = user && user.role === UserRole.ADMIN;
-    const isDeleted = filter.isDeleted ?? false;
-    const whereIsDeleted = { isDeleted: Boolean(isAdmin && isDeleted) };
+    const isAdmin = user?.role === UserRole.ADMIN;
+    const isModerator = user?.role === UserRole.MODERATOR;
+    const isGetSelfRecipes = user?.id === filter.userId;
 
     if (Object.values(filter).length === 0) {
       return await this.recipeRepository.find({
-        where: whereIsDeleted,
+        where: {
+          isDeleted: false,
+          isPublished: true,
+        },
         relations: {
           steps: true,
           ingredients: {
-            ingredient: true,
-            amountType: true,
+            ingredient: false,
+            amountType: false,
           },
           user: true,
         },
@@ -50,12 +53,20 @@ export class RecipesService {
       });
     }
 
+    if (filter.isDeleted === true || filter.isPublished === false) {
+      if (!isAdmin && !isModerator && !isGetSelfRecipes) {
+        new ForbiddenException();
+      }
+    }
+
     const queryParams: Record<string, any> = {};
+    const isPublished = isAdmin || isModerator ? filter.isPublished : !filter.userId || !isGetSelfRecipes || filter.isPublished;
+    const isDeleted = isAdmin || isModerator ? filter.isDeleted : isGetSelfRecipes && filter.isDeleted;
 
     let query = this.recipeRepository
       .createQueryBuilder('recipe')
       .select('recipe.id', 'id')
-      .innerJoin('recipe.ingredients', 'recipeIngredients')
+      .leftJoin('recipe.ingredients', 'recipeIngredients')
       .groupBy('recipe.id');
 
     if (filter.q?.length > 0) {
@@ -71,6 +82,18 @@ export class RecipesService {
     if (filter.slugs?.length > 0) {
       query = query.andWhere(`recipe.slug IN (:...slugs)`);
       queryParams.slugs = filter.slugs.filter(Boolean);
+    }
+
+    if (isPublished !== undefined) {
+      query = query.andWhere(`recipe.isPublished = :isPublished`);
+      console.log('isPublished', isPublished);
+
+      queryParams.isPublished = isPublished;
+    }
+
+    if (isDeleted !== undefined) {
+      query = query.andWhere(`recipe.isDeleted = :isDeleted`);
+      queryParams.isDeleted = isDeleted;
     }
 
     if (filter.ingredients?.excludes?.length > 0) {
@@ -99,34 +122,65 @@ export class RecipesService {
       .leftJoinAndSelect('recipe.steps', 'steps')
       .leftJoinAndSelect('recipe.user', 'user')
       .where(`recipe.id IN (${query.getQuery()})`)
-      .andWhere(whereIsDeleted)
       .orderBy('recipe.createdAt', 'DESC')
       .setParameters(queryParams);
 
     return await mainQuery.getMany();
   }
 
-  async getRecipeBySlug(slug: RecipeEntity['slug'], user?: UserEntity | null, isDeleted = false): Promise<RecipeEntity> {
-    const isAdmin = user && user.role === UserRole.ADMIN;
+  async getRecipeBySlug(
+    slug: RecipeEntity['slug'],
+    { user, isDeleted, isPublished }: { isDeleted?: boolean; isPublished?: boolean; user?: UserAuthDto | null } = {},
+  ): Promise<RecipeEntity> {
+    const isAdmin = user?.role === UserRole.ADMIN;
+    const isModerator = user?.role === UserRole.MODERATOR;
+    const isAuthor = user && (await this.recipeRepository.count({ where: { slug, userId: user?.id } })) > 0;
+
+    if (isDeleted === true || isPublished === false) {
+      if (!isAdmin && !isModerator && !isAuthor) {
+        throw new ForbiddenException();
+      }
+    }
 
     return await this.recipeRepository.findOne({
-      where: { slug, isDeleted: isAdmin && isDeleted },
+      where: { slug, isDeleted, isPublished },
       relations: {
-        steps: true,
-        ingredients: true,
+        steps: {
+          recipe: false,
+        },
+        ingredients: {
+          amountType: false,
+          ingredient: false,
+        },
         user: true,
       },
     });
   }
 
-  async getRecipeById(id: RecipeEntity['id'], user?: UserEntity | null, isDeleted = false): Promise<RecipeEntity> {
-    const isAdmin = user && user.role === UserRole.ADMIN;
+  async getRecipeById(
+    id: RecipeEntity['id'],
+    { user, isDeleted, isPublished }: { isDeleted?: boolean; isPublished?: boolean; user?: UserAuthDto | null } = {},
+  ): Promise<RecipeEntity> {
+    const isAdmin = user?.role === UserRole.ADMIN;
+    const isModerator = user?.role === UserRole.MODERATOR;
+    const isAuthor = user && (await this.recipeRepository.count({ where: { id, userId: user?.id } })) > 0;
+
+    if (isDeleted === true || isPublished === false) {
+      if (!isAdmin && !isModerator && !isAuthor) {
+        throw new ForbiddenException();
+      }
+    }
 
     return await this.recipeRepository.findOne({
       where: { id, isDeleted: isAdmin && isDeleted },
       relations: {
-        steps: true,
-        ingredients: true,
+        steps: {
+          recipe: false,
+        },
+        ingredients: {
+          amountType: false,
+          ingredient: false,
+        },
         user: true,
       },
     });
@@ -171,7 +225,7 @@ export class RecipesService {
       title: dto.title,
     });
 
-    return await this.getRecipeById(id, null, true);
+    return await this.getRecipeById(id, { isDeleted: false, isPublished: false });
   }
 
   async updateRecipe(slug: RecipeEntity['slug'], dto: RecipeUpdateDto, user: UserAuthDto) {
@@ -235,13 +289,13 @@ export class RecipesService {
       );
     }
 
-    const { id } = await this.recipeRepository.save(recipe);
+    await this.recipeRepository.save(recipe);
 
-    return await this.getRecipeById(id);
+    return await this.getRecipeById(recipe.id);
   }
 
-  async markAsDeleted(id: RecipeEntity['id'], user: UserEntity): Promise<void> {
-    const recipe = await this.getRecipeById(id, user);
+  async markAsDeleted(id: RecipeEntity['id'], user: UserAuthDto): Promise<void> {
+    const recipe = await this.getRecipeById(id, { user, isDeleted: true, isPublished: false });
 
     if (!recipe) {
       throw new NotFoundException();
@@ -275,5 +329,41 @@ export class RecipesService {
     }
 
     return recipe;
+  }
+
+  async publishRecipe(slug: RecipeEntity['slug'], user: UserAuthDto): Promise<RecipeEntity> {
+    const isAdmin = user?.role === UserRole.ADMIN;
+    const isModerator = user?.role === UserRole.MODERATOR;
+    const recipe = await this.getRecipeBySlug(slug);
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (!isAdmin && !isModerator) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS'); // недостаточно прав
+    }
+
+    await this.recipeRepository.update({ slug }, { isPublished: true });
+
+    return await this.getRecipeBySlug(slug);
+  }
+
+  async unpublishRecipe(slug: RecipeEntity['slug'], user: UserAuthDto): Promise<RecipeEntity> {
+    const isAdmin = user?.role === UserRole.ADMIN;
+    const isModerator = user?.role === UserRole.MODERATOR;
+    const recipe = await this.getRecipeBySlug(slug);
+
+    if (!recipe) {
+      throw new NotFoundException();
+    }
+
+    if (!isAdmin && !isModerator) {
+      throw new ForbiddenException('INSUFFICIENT_PERMISSIONS'); // недостаточно прав
+    }
+
+    await this.recipeRepository.update({ slug }, { isPublished: false });
+
+    return await this.getRecipeBySlug(slug);
   }
 }

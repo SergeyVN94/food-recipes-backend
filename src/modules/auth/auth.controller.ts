@@ -3,7 +3,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { User } from '@/modules/users/decorators/user.decorator';
 import { UserAuthDto } from '@/modules/users/dto/user-auth.dto';
-import { UserEntity } from '@/modules/users/entity/user.entity';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';

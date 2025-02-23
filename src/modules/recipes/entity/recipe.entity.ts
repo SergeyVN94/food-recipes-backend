@@ -1,8 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Transform } from 'class-transformer';
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
-import { UserEntity } from '@/modules/users/entity/user.entity';
+import { UserEntity } from '@/modules/users/user.entity';
 
 import { RecipeIngredientUnitEntity } from './recipe-ingredient-unit.entity';
 import { RecipeStepEntity } from './recipe-step.entity';
@@ -10,6 +20,7 @@ import { RecipeStepEntity } from './recipe-step.entity';
 @Entity()
 export class RecipeEntity {
   @ApiProperty()
+  @Index({ unique: true })
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -30,19 +41,11 @@ export class RecipeEntity {
   images: string[];
 
   @ApiProperty({ type: RecipeIngredientUnitEntity, isArray: true })
-  @OneToMany(() => RecipeIngredientUnitEntity, unit => unit.recipe, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    cascade: true,
-  })
+  @OneToMany(() => RecipeIngredientUnitEntity, unit => unit.recipe)
   ingredients: RecipeIngredientUnitEntity[];
 
   @ApiProperty({ type: RecipeStepEntity, isArray: true })
-  @OneToMany(() => RecipeStepEntity, step => step.recipe, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-    cascade: true,
-  })
+  @OneToMany(() => RecipeStepEntity, step => step.recipe)
   steps: RecipeStepEntity[];
 
   @ApiProperty({ type: UserEntity })
@@ -63,6 +66,10 @@ export class RecipeEntity {
   @Column({ default: false })
   isDeleted: boolean;
 
+  @ApiProperty({ description: 'Опубликован ли рецепт' })
+  @Column({ default: false })
+  isPublished: boolean;
+
   @ApiProperty()
   @CreateDateColumn()
   createdAt: string;
@@ -70,4 +77,7 @@ export class RecipeEntity {
   @ApiProperty()
   @UpdateDateColumn()
   updateAt: string;
+
+  @ApiProperty()
+  countInBookmarks: number;
 }

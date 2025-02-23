@@ -1,17 +1,13 @@
-import { DataSource } from 'typeorm';
-
-import dataSourceOptions from '@/config/data-source-options';
+import { connectionSource } from '@/config/typeorm';
 
 import runSeedAmountTypes from './amount-types-seed';
 import runSeedIngredients from './ingredients-seed';
 
 const main = async () => {
-  const dataSource = new DataSource(dataSourceOptions);
+  await connectionSource.initialize();
 
-  await dataSource.initialize();
-
-  await runSeedAmountTypes(dataSource);
-  await runSeedIngredients(dataSource);
+  await runSeedAmountTypes(connectionSource);
+  await runSeedIngredients(connectionSource);
 };
 
 main().then(console.log).catch(console.error);

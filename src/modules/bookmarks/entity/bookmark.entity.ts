@@ -1,8 +1,7 @@
+import { Exclude } from 'class-transformer';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { UserEntity } from '@/modules/users/entity/user.entity';
-
-import { BookmarkDto } from '../dto/bookmark.dto';
+import { UserEntity } from '@/modules/users/user.entity';
 
 @Entity()
 export class BookmarkEntity {
@@ -15,10 +14,12 @@ export class BookmarkEntity {
   @Column()
   slug: string;
 
+  @Exclude()
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
+  @Exclude()
   @Column({ nullable: false })
   userId: string;
 
@@ -27,14 +28,4 @@ export class BookmarkEntity {
 
   @UpdateDateColumn()
   updateAt: string;
-
-  toDto(): BookmarkDto {
-    return {
-      id: this.id,
-      title: this.title,
-      slug: this.slug,
-      createdAt: this.createdAt,
-      updateAt: this.updateAt,
-    };
-  }
 }

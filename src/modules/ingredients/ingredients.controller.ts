@@ -6,7 +6,7 @@ import { SearchFilterDto } from '@/dto/search-filter.dto';
 import { Public } from '@/modules/auth/decorators/public.decorator';
 
 import { AmountTypeDto } from './dto/amount-type.dto';
-import { IngredientDto } from './dto/ingredient.dto';
+import { IngredientEntity } from './entity/ingredient.entity';
 import { IngredientsService } from './ingredients.service';
 
 @UseInterceptors(CacheInterceptor)
@@ -16,11 +16,11 @@ import { IngredientsService } from './ingredients.service';
 export class IngredientsController {
   constructor(private readonly ingredientService: IngredientsService) {}
 
-  @ApiResponse({ type: IngredientDto, isArray: true })
+  @ApiResponse({ type: IngredientEntity, isArray: true })
   @CacheKey('ingredients')
   @Public()
   @Get()
-  async getRecipeIngredients(@Query() filter: SearchFilterDto): Promise<IngredientDto[]> {
+  async getRecipeIngredients(@Query() filter: SearchFilterDto) {
     return await this.ingredientService.getIngredients(filter);
   }
 
@@ -32,11 +32,11 @@ export class IngredientsController {
     return await this.ingredientService.getAmountTypes();
   }
 
-  @ApiResponse({ type: IngredientDto })
+  @ApiResponse({ type: IngredientEntity })
   @Public()
   @ApiParam({ name: 'id' })
   @Get(':id')
-  async getRecipeIngredientById(@Param() id: string): Promise<IngredientDto> {
+  async getRecipeIngredientById(@Param() id: string): Promise<IngredientEntity> {
     return await this.ingredientService.getIngredientById(Number(id));
   }
 }

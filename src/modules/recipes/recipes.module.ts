@@ -2,8 +2,8 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { BookmarksModule } from '@/modules/bookmarks/bookmarks.module';
-import { IngredientsModule } from '@/modules/ingredients';
-import { MinioClientModule } from '@/modules/minio-client';
+import { IngredientsModule } from '@/modules/ingredients/ingredients.module';
+import { MinioClientModule } from '@/modules/minio-client/minio-client.module';
 
 import { RecipeIngredientUnitEntity } from './entity/recipe-ingredient-unit.entity';
 import { RecipeStepEntity } from './entity/recipe-step.entity';

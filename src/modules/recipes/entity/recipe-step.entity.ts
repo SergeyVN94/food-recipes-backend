@@ -11,10 +11,7 @@ export class RecipeStepEntity {
   id!: string;
 
   @Exclude()
-  @ManyToOne(() => RecipeEntity, recipe => recipe.steps, {
-    eager: true,
-    orphanedRowAction: 'delete',
-  })
+  @ManyToOne(() => RecipeEntity, recipe => recipe.steps)
   @JoinColumn({ name: 'recipeId' })
   recipe: RecipeEntity;
 
